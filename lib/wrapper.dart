@@ -13,7 +13,7 @@ class Wrapper extends StatelessWidget {
     if (authProvider == null) {
       return const SiginScreen();
     } else {
-      return HomeScreen();
+      return const HomeScreen();
     }
   }
 }

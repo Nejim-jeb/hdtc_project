@@ -2,13 +2,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/models/user.dart';
 import 'package:hdtc_project/providers/auth_provider.dart';
-import 'package:hdtc_project/wrapper.dart';
+import 'package:hdtc_project/screens/home.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 // TODO: Add Website Icon
 // TODO: Manage Firebase Security Rules
 // TODO: Disable Access by changing URL without Being Logged in
 // TODO: show dialogs on signup etc...
+// TODO: PDF WITH MORE THAN 1 PAGE WITH 1 TABLE FROM ARRAY FIX
+// TODO: YENI YUZYIL ALPHABET PDF FIX
+// TODO: MASTER DOKTORA BACH DIFFERENCES
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +25,7 @@ void main() async {
             messagingSenderId: "556252644878",
             appId: "1:556252644878:web:a0b192831b9fb9ce625e5f"));
   } else {
-    await Firebase.initializeApp();
+    //  await Firebase.initializeApp();
   }
 
   runApp(const HdtcApp());
@@ -43,12 +46,13 @@ class HdtcApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         // navigatorKey: ,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const Wrapper(),
+        home: const HomeScreen(),
       ),
     );
   }
