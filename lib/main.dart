@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 // TODO: PDF WITH MORE THAN 1 PAGE WITH 1 TABLE FROM ARRAY FIX
 // TODO: YENI YUZYIL ALPHABET PDF FIX
 // TODO: MASTER DOKTORA BACH DIFFERENCES
+// TODO: Try tableRow instead of Table.oftextarray
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
