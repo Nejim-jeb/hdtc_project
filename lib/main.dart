@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 // TODO: YENI YUZYIL ALPHABET PDF FIX
 // TODO: MASTER DOKTORA BACH DIFFERENCES
 // TODO: Try tableRow instead of Table.oftextarray
+// TODO: InputFormatter to auto add $ to the end of the text
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

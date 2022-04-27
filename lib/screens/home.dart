@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 import 'package:hdtc_project/services/firestore_services.dart';
+import 'package:hdtc_project/utils.dart';
 import '../constants/my_constants.dart';
 import '../services/pdf_services.dart';
 
@@ -15,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   String? selectedUni;
@@ -30,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String? cost;
   String? currency;
   final GlobalKey _formkey = GlobalKey<FormState>();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   late final Stream<QuerySnapshot> myStream;
   List<Map>? passedMapList;
+  List<Map> passedFieldData = [];
 
   @override
   void initState() {
@@ -65,11 +67,42 @@ class _HomeScreenState extends State<HomeScreen> {
               if (doc.get('name') == selectedUni) {
                 final res = List<String>.from(doc.get('fields'));
                 passedMapList = List.from(doc.get('specializations'));
-                for (var item in res) {
-                  if (_fieldList.contains(item) == false) {
-                    _fieldList.add(item);
+
+                // for (var item in res) {
+                //   if (_fieldList.contains(item) == false) {
+                //     _fieldList.add(item);
+                //   }
+                // }
+              }
+            }
+            if (_fieldList.isEmpty) {
+              Set<String> fieldsSet = {};
+              for (var doc in documents) {
+                final fields = List<String>.from(doc.get('fields'));
+                fieldsSet.addAll(fields);
+                // for (var element in fieldsSet) {
+                //   _fieldList.add(element);
+                // }
+              }
+              _fieldList.addAll(fieldsSet);
+            }
+
+            if (selectedField != null) {
+              print('selected field = $selectedField');
+              for (var doc in documents) {
+                final fieldRes = List.of(doc['specializations']);
+
+                for (var item in fieldRes) {
+                  item['name'] = '${doc.get('name')}';
+                }
+
+                for (Map fieldData in fieldRes) {
+                  if (fieldData.containsValue(selectedField)) {
+                    passedFieldData.add(fieldData);
                   }
                 }
+                print(
+                    'PASSED Field Rows Length= = = = = = =  ${passedFieldData.length}');
               }
             }
 
@@ -119,91 +152,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                         });
                                       }),
                                 ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: DropdownButtonFormField<String>(
-                                      hint: const Text('Select Field'),
-                                      value: selectedField,
-                                      items: _fieldList
-                                          .map((e) => DropdownMenuItem(
-                                              value: e, child: Text(e)))
-                                          .toList()
-                                        ..sort((a, b) {
-                                          return a.value!
-                                              .toLowerCase()
-                                              .compareTo(
-                                                  b.value!.toLowerCase());
-                                        }),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedField = val;
-                                        });
-                                      }),
-                                ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: DropdownButtonFormField<String>(
-                                      hint: const Text('Select Specialization'),
-                                      value: selectedSpec,
-                                      items: MyConstants.specsList
-                                        ..sort((a, b) {
-                                          return a.value!
-                                              .toLowerCase()
-                                              .compareTo(
-                                                  b.value!.toLowerCase());
-                                        }),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedSpec = val;
-                                        });
-                                      }),
-                                ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: DropdownButtonFormField<String>(
-                                      hint: const Text('Select Language'),
-                                      value: selectedlang,
-                                      items: MyConstants.langList
-                                        ..sort((a, b) {
-                                          return a.value!
-                                              .toLowerCase()
-                                              .compareTo(
-                                                  b.value!.toLowerCase());
-                                        }),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedlang = val;
-                                        });
-                                      }),
-                                ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      hintText: 'Fees',
-                                    ),
-                                    inputFormatters: const [
-                                      // TODO: inputFormatters to add $ sign to the end of the text
-                                      // TextInputFormatter.formatEditUpdate(oldValue, newValue){}
-                                    ],
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (val) {
-                                      cost = '$val USD';
-                                    },
-                                  ),
-                                ),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 Center(
                                   child: ElevatedButton(
                                       onPressed: () async {
-                                        print(selectedUni!);
-                                        print(passedMapList!);
+                                        final res =
+                                            await Utils.readExcelFileData(
+                                                sheetName: 'sheet1',
+                                                excelFilePath:
+                                                    'vocational_schools');
+
+                                        print(res);
                                         //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
-                                        await PdfAPI.generateUniPdf(
-                                            uniName: selectedUni!,
-                                            uniData: passedMapList!);
+                                        // await PdfAPI.generateUniPdf(
+                                        //     uniName: selectedUni!,
+                                        //     uniData: passedMapList!);
                                       },
                                       child: const Text('Download PDF')),
                                 ),
@@ -235,29 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     'From Field = true : ${fromFileds.toString()}'),
                                 SizedBox(
                                   width: width * 0.5,
-                                  child: DropdownButtonFormField<dynamic>(
-                                      hint: const Text('Select Field'),
-                                      value: selectedUni,
-                                      items: _uniList
-                                          .map((e) => DropdownMenuItem(
-                                              value: e, child: Text(e)))
-                                          .toList()
-                                        ..sort((a, b) {
-                                          return a.value!
-                                              .toLowerCase()
-                                              .compareTo(
-                                                  b.value!.toLowerCase());
-                                        }),
-                                      onChanged: (val) {
-                                        //   selectedField = null;
-                                        _fieldList.clear();
-                                        setState(() {
-                                          selectedUni = val;
-                                        });
-                                      }),
-                                ),
-                                SizedBox(
-                                  width: width * 0.5,
                                   child: DropdownButtonFormField<String>(
                                       hint: const Text('Select Field'),
                                       value: selectedField,
@@ -280,24 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(
                                   width: width * 0.5,
                                   child: DropdownButtonFormField<String>(
-                                      hint: const Text('Select Specialization'),
-                                      value: selectedSpec,
-                                      items: MyConstants.specsList
-                                        ..sort((a, b) {
-                                          return a.value!
-                                              .toLowerCase()
-                                              .compareTo(
-                                                  b.value!.toLowerCase());
-                                        }),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedSpec = val;
-                                        });
-                                      }),
-                                ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: DropdownButtonFormField<String>(
                                       hint: const Text('Select Language'),
                                       value: selectedlang,
                                       items: MyConstants.langList
@@ -313,36 +237,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                         });
                                       }),
                                 ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      hintText: 'Fees',
-                                    ),
-                                    inputFormatters: const [
-                                      // TODO: inputFormatters to add $ sign to the end of the text
-                                      // TextInputFormatter.formatEditUpdate(oldValue, newValue){}
-                                    ],
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (val) {
-                                      cost = '$val USD';
-                                    },
-                                  ),
-                                ),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 Center(
                                   child: ElevatedButton(
                                       onPressed: () async {
-                                        print(selectedUni!);
-                                        print(passedMapList!);
+                                        print('button pressed');
+
                                         //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
-                                        await PdfAPI.generateUniPdf(
-                                            uniName: selectedUni!,
-                                            uniData: passedMapList!);
+                                        await PdfAPI.generateFieldPdf(
+                                            fieldData: passedFieldData);
                                       },
-                                      child: const Text('Download PDF')),
+                                      child: const Text('Download Field PDF')),
                                 ),
                               ],
                             ),
@@ -352,13 +259,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     }),
               floatingActionButton: FloatingActionButton(onPressed: () {
                 setState(() {});
-                // setState(() {
-                //   testList.add(const DropdownMenuItem(
-                //     child: Text('test'),
-                //     value: 'test',
-                //   ));
-                // });
-
                 // try {
                 //   _authService.signOut();
                 // } catch (e) {
