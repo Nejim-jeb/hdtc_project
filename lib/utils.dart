@@ -1,4 +1,5 @@
 import 'package:excel/excel.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Utils {
@@ -15,17 +16,41 @@ class Utils {
       for (var row in selectedExcel!.rows) {
         List<dynamic> rowData = [];
         for (var cell in row) {
-          rowData.add(cell?.value);
+          rowData.add(cell?.value.toString().trim().toLowerCase());
         }
         rowsData.add(rowData);
-
-        print(rowsData);
-        //  print(row.runtimeType);
       }
       return rowsData;
     } catch (e) {
       print('Catched Error String is = = = ' + e.toString());
       return [];
     }
+  }
+
+  static String capitalize(String string) {
+    if (string.isEmpty) {
+      return string;
+    }
+
+    return string[0].toUpperCase() + string.substring(1);
+  }
+
+  static String capitalizeFirstOfEachWord(String string) {
+    if (string.isEmpty) {
+      return string;
+    }
+    String result = string.split(" ").map((str) => capitalize(str)).join(" ");
+    return result;
+  }
+
+  static showLoading(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+              content: SizedBox(
+                height: 50,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ));
   }
 }

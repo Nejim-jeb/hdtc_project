@@ -9,9 +9,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 // TODO: Manage Firebase Security Rules
 // TODO: Disable Access by changing URL without Being Logged in
 // TODO: show dialogs on signup etc...
-// TODO: PDF WITH MORE THAN 1 PAGE WITH 1 TABLE FROM ARRAY FIX
 // TODO: YENI YUZYIL ALPHABET PDF FIX
-// TODO: MASTER DOKTORA BACH DIFFERENCES
 // TODO: Try tableRow instead of Table.oftextarray
 // TODO: InputFormatter to auto add $ to the end of the text
 

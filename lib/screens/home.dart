@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 import 'package:hdtc_project/services/firestore_services.dart';
 import 'package:hdtc_project/utils.dart';
-import '../constants/my_constants.dart';
 import '../services/pdf_services.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -41,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _uniList = [];
     _fieldList = [];
-    myStream = FireStoreServices.getUni();
+    myStream = FireStoreServices.getData(collectionName: 'phd');
   }
 
   List<String>? functionTest({List<String>? fields}) {
@@ -67,12 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
               if (doc.get('name') == selectedUni) {
                 final res = List<String>.from(doc.get('fields'));
                 passedMapList = List.from(doc.get('specializations'));
-
-                // for (var item in res) {
-                //   if (_fieldList.contains(item) == false) {
-                //     _fieldList.add(item);
-                //   }
-                // }
               }
             }
             if (_fieldList.isEmpty) {
@@ -80,9 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
               for (var doc in documents) {
                 final fields = List<String>.from(doc.get('fields'));
                 fieldsSet.addAll(fields);
-                // for (var element in fieldsSet) {
-                //   _fieldList.add(element);
-                // }
               }
               _fieldList.addAll(fieldsSet);
             }
@@ -101,8 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     passedFieldData.add(fieldData);
                   }
                 }
-                print(
-                    'PASSED Field Rows Length= = = = = = =  ${passedFieldData.length}');
               }
             }
 
@@ -136,7 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       value: selectedUni,
                                       items: _uniList
                                           .map((e) => DropdownMenuItem(
-                                              value: e, child: Text(e)))
+                                              value: e,
+                                              child: Text((Utils
+                                                  .capitalizeFirstOfEachWord(
+                                                      e)))))
                                           .toList()
                                         ..sort((a, b) {
                                           return a.value!
@@ -146,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         }),
                                       onChanged: (val) {
                                         //   selectedField = null;
-                                        _fieldList.clear();
+                                        // _fieldList.clear();
                                         setState(() {
                                           selectedUni = val;
                                         });
@@ -158,17 +149,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Center(
                                   child: ElevatedButton(
                                       onPressed: () async {
-                                        final res =
-                                            await Utils.readExcelFileData(
-                                                sheetName: 'sheet1',
-                                                excelFilePath:
-                                                    'vocational_schools');
-
-                                        print(res);
+                                        Utils.showLoading(context);
                                         //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
-                                        // await PdfAPI.generateUniPdf(
-                                        //     uniName: selectedUni!,
-                                        //     uniData: passedMapList!);
+                                        await PdfAPI.generateUniPdf(
+                                            uniName: selectedUni!,
+                                            uniData: passedMapList!);
+                                        Navigator.pop(context);
+                                        // setState(() {
+                                        //   selectedUni = null;
+                                        //   passedMapList = null;
+                                        // });
                                       },
                                       child: const Text('Download PDF')),
                                 ),
@@ -205,7 +195,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       value: selectedField,
                                       items: _fieldList
                                           .map((e) => DropdownMenuItem(
-                                              value: e, child: Text(e)))
+                                              value: e,
+                                              child: Text(Utils
+                                                  .capitalizeFirstOfEachWord(
+                                                      e))))
                                           .toList()
                                         ..sort((a, b) {
                                           return a.value!
@@ -214,29 +207,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   b.value!.toLowerCase());
                                         }),
                                       onChanged: (val) {
+                                        if (passedFieldData.isNotEmpty) {
+                                          passedFieldData.clear();
+                                        }
                                         setState(() {
                                           selectedField = val;
                                         });
                                       }),
                                 ),
-                                SizedBox(
-                                  width: width * 0.5,
-                                  child: DropdownButtonFormField<String>(
-                                      hint: const Text('Select Language'),
-                                      value: selectedlang,
-                                      items: MyConstants.langList
-                                        ..sort((a, b) {
-                                          return a.value!
-                                              .toLowerCase()
-                                              .compareTo(
-                                                  b.value!.toLowerCase());
-                                        }),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedlang = val;
-                                        });
-                                      }),
-                                ),
+                                // SizedBox(
+                                //   width: width * 0.5,
+                                //   child: DropdownButtonFormField<String>(
+                                //       hint: const Text('Select Language'),
+                                //       value: selectedlang,
+                                //       items: MyConstants.langList
+                                //         ..sort((a, b) {
+                                //           return a.value!
+                                //               .toLowerCase()
+                                //               .compareTo(
+                                //                   b.value!.toLowerCase());
+                                //         }),
+                                //       onChanged: (val) {
+                                //         setState(() {
+                                //           selectedlang = val;
+                                //         });
+                                //       }),
+                                // ),
                                 const SizedBox(
                                   height: 10,
                                 ),
@@ -244,10 +240,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: ElevatedButton(
                                       onPressed: () async {
                                         print('button pressed');
+                                        Utils.showLoading(context);
 
                                         //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
                                         await PdfAPI.generateFieldPdf(
                                             fieldData: passedFieldData);
+                                        passedFieldData = [];
+                                        Navigator.pop(context);
                                       },
                                       child: const Text('Download Field PDF')),
                                 ),
@@ -257,14 +256,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       );
                     }),
-              floatingActionButton: FloatingActionButton(onPressed: () {
-                setState(() {});
-                // try {
-                //   _authService.signOut();
-                // } catch (e) {
-                //   print('Catched Error = ${e.toString()}');
-                // }
-              }),
+              // floatingActionButton: FloatingActionButton(onPressed: () async {
+              //   print('pressed');
+              //   showDialog(
+              //       context: context,
+              //       builder: (context) => const AlertDialog(
+              //             content: SizedBox(
+              //                 height: 100,
+              //                 width: 100,
+              //                 child:
+              //                     Center(child: CircularProgressIndicator())),
+              //           ));
+              //   await FireStoreServices.bulkUploadFromExcelToFireStore(
+              //       collectionName: '',
+              //       fileName: '',
+              //       sheetName: '');
+              //   Navigator.pop(context);
+              //   print('done');
+              //   // try {
+              //   //   _authService.signOut();
+              //   // } catch (e) {
+              //   //   print('Catched Error = ${e.toString()}');
+              //   // }
+              // }),
             );
           } else {
             return const Center(
