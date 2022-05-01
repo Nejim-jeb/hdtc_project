@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/models/user.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,9 @@ class _SiginScreenState extends State<SiginScreen> {
   void initState() {
     super.initState();
     _emailController = TextEditingController();
+    // _emailController.selection =
+    //     TextSelection.collapsed(offset: _emailController.text.length);
+
     _passwordController = TextEditingController();
   }
 
@@ -34,32 +38,53 @@ class _SiginScreenState extends State<SiginScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<AppUser?>(context);
+    final width = MediaQuery.of(context).size.width;
     print('Provided User sign in screen = ${userProvider?.email}');
     return Scaffold(
-      backgroundColor: Colors.red,
       body: Center(
         child: Form(
           // TODO: Form Validation
           key: _formKey,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _emailController,
+              SizedBox(
+                width: width * 0.5,
+                child: TextFormField(
+                  cursorHeight: 0,
+                  cursorWidth: 0,
+                  textAlign: TextAlign.left,
+                  decoration: MyConstants.formTextFieldInputDecoration(
+                      hintText: 'البريد الإلكتروني'),
+                  controller: _emailController,
+                ),
               ),
               const SizedBox(height: 15),
-              TextFormField(
-                controller: _passwordController,
+              SizedBox(
+                width: width * 0.5,
+                child: TextFormField(
+                  onTap: () {
+                    _passwordController.selection = TextSelection.collapsed(
+                        offset: _passwordController.text.length);
+                  },
+                  textAlign: TextAlign.left,
+                  cursorHeight: 0,
+                  cursorWidth: 0,
+                  obscureText: true,
+                  decoration: MyConstants.formTextFieldInputDecoration(
+                      hintText: 'كلمة المرور'),
+                  controller: _passwordController,
+                ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 25),
               ElevatedButton(
                   onPressed: () {
                     final auth = FirebaseAuth.instance;
 
-                    print('current user email = ${auth.currentUser?.email}');
-
                     // TODO: Form if Valid
-                    print(_emailController.text.trim().toLowerCase());
-                    print(_passwordController.text.trim().toLowerCase());
+
                     _authService.signInWithEmailAndPassword(
                         email: _emailController.text.trim().toLowerCase(),
                         password:

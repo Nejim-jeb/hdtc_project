@@ -24,7 +24,7 @@ class FireStoreServices {
       rowsData.removeAt(0);
 
       print(rowsData.length);
-      // print(rowsData.length);
+
       for (var row in rowsData) {
         firebaseFirestore.collection(collectionName).doc(row[0]).set({
           'name': row[0],

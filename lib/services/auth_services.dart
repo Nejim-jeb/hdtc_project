@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:hdtc_project/models/user.dart';
+import 'package:hdtc_project/wrapper.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -42,7 +45,11 @@ class AuthService {
     }
   }
 
-  Future signOut() async {
+  Future signOut(BuildContext context) async {
     await _auth.signOut();
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const Wrapper()),
+        (route) => false);
   }
 }

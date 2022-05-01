@@ -2,9 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/models/user.dart';
 import 'package:hdtc_project/providers/auth_provider.dart';
-import 'package:hdtc_project/screens/home.dart';
+import 'package:hdtc_project/wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+
 // TODO: Add Website Icon
 // TODO: Manage Firebase Security Rules
 // TODO: Disable Access by changing URL without Being Logged in
@@ -12,6 +13,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 // TODO: YENI YUZYIL ALPHABET PDF FIX
 // TODO: Try tableRow instead of Table.oftextarray
 // TODO: InputFormatter to auto add $ to the end of the text
+// TODO: Pressing outside dropdown should unfocus
+// TODO: AUTO FILL LOGIN TEXTFIELDS
+// TODO: MATERIAL APP BUILDER => Directionality to all app and set custom navigator or router to App
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,14 +49,19 @@ class HdtcApp extends StatelessWidget {
           },
         )
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        // navigatorKey: ,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          // navigatorKey: ,
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+
+          home: const Directionality(
+              textDirection: TextDirection.rtl, child: Wrapper()),
         ),
-        home: const HomeScreen(),
       ),
     );
   }
