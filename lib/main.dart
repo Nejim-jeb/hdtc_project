@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hdtc_project/models/user.dart';
 import 'package:hdtc_project/providers/auth_provider.dart';
 import 'package:hdtc_project/wrapper.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show LicenseEntryWithLineBreaks, LicenseRegistry, kIsWeb;
 
 // TODO: Add Website Icon
 // TODO: Manage Firebase Security Rules
@@ -16,8 +18,14 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 // TODO: Pressing outside dropdown should unfocus
 // TODO: AUTO FILL LOGIN TEXTFIELDS
 // TODO: MATERIAL APP BUILDER => Directionality to all app and set custom navigator or router to App
+// TODO: LOAD LOGO FROM FIRESTORGE PUBLIC NOW TRY TO MAKE PRIVATE WITH RULES
 
 void main() async {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
+
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     await Firebase.initializeApp(

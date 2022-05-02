@@ -9,8 +9,6 @@ import 'package:pdf/widgets.dart';
 //import 'package:universal_html/html.dart' as html;
 import 'dart:html' as html;
 
-import 'package:printing/printing.dart';
-
 class PdfAPI {
   static final headers = [
     'UNIVERSITY',
@@ -67,8 +65,12 @@ class PdfAPI {
 
   static Future generateUniPdf(
       {required String uniName, required List<Map> uniData}) async {
-    final font = await PdfGoogleFonts.sourceSans3SemiBold();
+    // final fontFromPackage = await PdfGoogleFonts.sourceSans3SemiBold();
+    final fontFromAsset = await rootBundle.load('fonts/Arial.ttf');
+    Font font = Font.ttf(fontFromAsset);
+
     // final fontArabic = await PdfGoogleFonts.notoKufiArabicExtraLight();
+    // String font = 'Cairo';
 
     List<List<dynamic>> uniMapToListofLists(
         {required String uniName, required List<Map> map}) {
@@ -122,35 +124,38 @@ class PdfAPI {
         header: (context) =>
             buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
         build: (context) => [
-          Table.fromTextArray(
-            columnWidths: {
-              0: const IntrinsicColumnWidth(flex: 1.2),
-              2: const IntrinsicColumnWidth(flex: 0.8),
-              4: const IntrinsicColumnWidth(flex: 1.6),
-              5: const IntrinsicColumnWidth(flex: 1.3),
-              6: const IntrinsicColumnWidth(flex: 1),
-            },
-            cellHeight: 50,
-            cellAlignment: Alignment.center,
-            cellStyle: const TextStyle(
-              fontSize: 9,
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Table.fromTextArray(
+              columnWidths: {
+                0: const IntrinsicColumnWidth(flex: 1.2),
+                2: const IntrinsicColumnWidth(flex: 0.8),
+                4: const IntrinsicColumnWidth(flex: 1.6),
+                5: const IntrinsicColumnWidth(flex: 1.3),
+                6: const IntrinsicColumnWidth(flex: 1),
+              },
+              cellHeight: 50,
+              cellAlignment: Alignment.center,
+              cellStyle: const TextStyle(
+                fontSize: 9,
+              ),
+              cellDecoration: (index, data, rowNum) {
+                final defaultColor = const BoxDecoration().color;
+                if (index == 0) {
+                  return BoxDecoration(color: PdfColor.fromHex(columnColor));
+                } else {
+                  return BoxDecoration(color: defaultColor);
+                }
+              },
+              headerHeight: 1,
+              headerAlignment: Alignment.center,
+              headerDecoration:
+                  BoxDecoration(color: PdfColor.fromHex(headerColor)),
+              headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+              headers: headers,
+              data: uniMapToListofLists(map: uniData, uniName: uniName),
             ),
-            cellDecoration: (index, data, rowNum) {
-              final defaultColor = const BoxDecoration().color;
-              if (index == 0) {
-                return BoxDecoration(color: PdfColor.fromHex(columnColor));
-              } else {
-                return BoxDecoration(color: defaultColor);
-              }
-            },
-            headerHeight: 1,
-            headerAlignment: Alignment.center,
-            headerDecoration:
-                BoxDecoration(color: PdfColor.fromHex(headerColor)),
-            headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
-            headers: headers,
-            data: uniMapToListofLists(map: uniData, uniName: uniName),
-          ),
+          )
         ],
       ),
     );
@@ -159,8 +164,10 @@ class PdfAPI {
   }
 
   static Future generateFieldPdf({required List<Map> fieldData}) async {
-    final font = await PdfGoogleFonts.sourceSans3SemiBold();
-    // final fontArabic = await PdfGoogleFonts.notoKufiArabicExtraLight();
+    //    final font = await PdfGoogleFonts.sourceSans3SemiBold();
+    final fontFromAsset = await rootBundle.load('fonts/Arial.ttf');
+    Font font = Font.ttf(fontFromAsset);
+
     final imageJpj =
         (await rootBundle.load('hdtc_logo2.jpg')).buffer.asUint8List();
     final imageBackground =
@@ -191,9 +198,7 @@ class PdfAPI {
     final pageTheme = PageTheme(
         pageFormat: PdfPageFormat.a4,
         margin: const EdgeInsets.fromLTRB(50, 20, 50, 50),
-        theme: ThemeData(
-          defaultTextStyle: TextStyle(font: font),
-        ),
+        theme: ThemeData.withFont(base: font),
         buildBackground: (context) {
           return FullPage(
             ignoreMargins: true,
@@ -206,43 +211,58 @@ class PdfAPI {
     final pdf = Document();
     pdf.addPage(
       MultiPage(
-        footer: (context) => Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(footerText, style: TextStyle(font: font))),
+        footer: (context) {
+          return Table(children: [
+            TableRow(children: [
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: Text('حلو'),
+              ),
+              Text('text1'),
+              Text('text1'),
+            ])
+          ]);
+          // return Padding(
+          //     padding: const EdgeInsets.only(top: 8),
+          //     child: Text(footerText, style: TextStyle(font: font)));
+        },
         pageTheme: pageTheme,
         header: (context) =>
             buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
         build: (context) => [
-          Table.fromTextArray(
-            columnWidths: {
-              0: const IntrinsicColumnWidth(flex: 1.2),
-              2: const IntrinsicColumnWidth(flex: 0.8),
-              4: const IntrinsicColumnWidth(flex: 1.6),
-              5: const IntrinsicColumnWidth(flex: 1.3),
-              6: const IntrinsicColumnWidth(flex: 1),
-            },
-            cellHeight: 50,
-            cellAlignment: Alignment.center,
-            cellStyle: const TextStyle(
-              fontSize: 9,
-            ),
-            cellDecoration: (index, data, rowNum) {
-              final defaultColor = const BoxDecoration().color;
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Table.fromTextArray(
+              columnWidths: {
+                0: const IntrinsicColumnWidth(flex: 1.2),
+                2: const IntrinsicColumnWidth(flex: 0.8),
+                4: const IntrinsicColumnWidth(flex: 1.6),
+                5: const IntrinsicColumnWidth(flex: 1.3),
+                6: const IntrinsicColumnWidth(flex: 1),
+              },
+              cellHeight: 50,
+              cellAlignment: Alignment.center,
+              cellStyle: const TextStyle(
+                fontSize: 9,
+              ),
+              cellDecoration: (index, data, rowNum) {
+                final defaultColor = const BoxDecoration().color;
 
-              if (index == 0) {
-                return BoxDecoration(color: PdfColor.fromHex(columnColor));
-              } else {
-                return BoxDecoration(color: defaultColor);
-              }
-            },
-            headerHeight: 1,
-            headerAlignment: Alignment.center,
-            headerDecoration:
-                BoxDecoration(color: PdfColor.fromHex(headerColor)),
-            headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
-            headers: headers,
-            data: fieldMapToListofLists(map: fieldData),
-          ),
+                if (index == 0) {
+                  return BoxDecoration(color: PdfColor.fromHex(columnColor));
+                } else {
+                  return BoxDecoration(color: defaultColor);
+                }
+              },
+              headerHeight: 1,
+              headerAlignment: Alignment.center,
+              headerDecoration:
+                  BoxDecoration(color: PdfColor.fromHex(headerColor)),
+              headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+              headers: headers,
+              data: fieldMapToListofLists(map: fieldData),
+            ),
+          )
         ],
       ),
     );

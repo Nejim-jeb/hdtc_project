@@ -26,7 +26,7 @@ class _CreatePdfButtonState extends State<CreatePdfButton> {
     return ElevatedButton(
         onPressed: widget.fromUni == true
             ? () async {
-                Utils.showLoading(context);
+                Utils.showLoading(context, '');
                 //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
                 await PdfAPI.generateUniPdf(
                     uniName: widget.selectedUni!,
@@ -39,7 +39,7 @@ class _CreatePdfButtonState extends State<CreatePdfButton> {
               }
             : (() async {
                 print('button pressed');
-                Utils.showLoading(context);
+                Utils.showLoading(context, '');
                 //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
                 await PdfAPI.generateFieldPdf(
                     fieldData: widget.passedFieldData);
