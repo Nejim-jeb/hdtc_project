@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 import 'package:hdtc_project/utils.dart';
-import 'package:hdtc_project/widgets/sidebar.dart';
+import 'package:hdtc_project/widgets/admin_sidebar.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -52,7 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           key: _formKey,
           child: Row(
             children: [
-              const SideBar(currentIndex: 4),
+              const AdminSideBar(currentIndex: 4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,

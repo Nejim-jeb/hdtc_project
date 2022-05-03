@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/models/user.dart';
 import 'package:hdtc_project/wrapper.dart';
@@ -18,7 +17,7 @@ class AuthService {
       final _auth = FirebaseAuth.instance;
       UserCredential authResult = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      _firebaseFirestore.collection('users').add(AppUser(
+      _firebaseFirestore.collection('users').doc(authResult.user!.uid).set(AppUser(
               // TODO: Fix Display name is fixed valye when add to firestore after signup
               // TODO: Fix Password showing in Users Firestore Collection as Null
               id: authResult.user!.uid,

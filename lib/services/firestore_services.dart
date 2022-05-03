@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/models/university.dart';
+import 'package:hdtc_project/models/user_data.dart';
 import 'package:hdtc_project/utils.dart';
 
 class FireStoreServices {
   static final firebaseFirestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String? id;
+  FireStoreServices({this.id});
 
   static Future<void> addUniversity(
       {required String collectionPath, required University uniData}) async {
@@ -12,6 +18,14 @@ class FireStoreServices {
         .collection(collectionPath)
         .doc(uniData.name)
         .set(uniData.toMap(), SetOptions(merge: true));
+  }
+
+  Stream<UserData?> getUserDoc({String? userId}) {
+    return firebaseFirestore
+        .collection('users')
+        .doc(userId)
+        .snapshots()
+        .map(_userDataFromFirestore);
   }
 
   static Future bulkUploadFromExcelToFireStore(
@@ -61,5 +75,14 @@ class FireStoreServices {
 
   static Stream<QuerySnapshot> getData({required String collectionName}) {
     return firebaseFirestore.collection(collectionName).snapshots();
+  }
+
+  UserData? _userDataFromFirestore(DocumentSnapshot doc) {
+    return UserData(
+      id: _auth.currentUser!.uid,
+      email: doc['email'],
+      role: doc['role'],
+      userName: doc['userName'],
+    );
   }
 }

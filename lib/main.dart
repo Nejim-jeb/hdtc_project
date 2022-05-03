@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hdtc_project/models/user.dart';
+import 'package:hdtc_project/models/user_data.dart';
 import 'package:hdtc_project/providers/auth_provider.dart';
+import 'package:hdtc_project/services/firestore_services.dart';
 import 'package:hdtc_project/wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart'
@@ -19,6 +22,7 @@ import 'package:flutter/foundation.dart'
 // TODO: AUTO FILL LOGIN TEXTFIELDS
 // TODO: MATERIAL APP BUILDER => Directionality to all app and set custom navigator or router to App
 // TODO: LOAD LOGO FROM FIRESTORGE PUBLIC NOW TRY TO MAKE PRIVATE WITH RULES
+// Fix: Unfocus After field selection + signout (focus node used after dispose error)
 
 void main() async {
   LicenseRegistry.addLicense(() async* {
@@ -51,11 +55,20 @@ class HdtcApp extends StatelessWidget {
       providers: [
         StreamProvider<AppUser?>(
           create: (context) => AuthProvider().getUser,
-          initialData: AppUser(email: 'email', id: 'id', userName: 'name'),
-          catchError: (context, object) {
+          lazy: true,
+          initialData: null,
+        ),
+        StreamProvider<UserData?>(
+          catchError: (context, error) {
+            print('ONCATCHERROR MESSAGE = $error');
             return null;
           },
-        )
+          initialData: null,
+          create: ((context) {
+            return FireStoreServices()
+                .getUserDoc(userId: FirebaseAuth.instance.currentUser!.uid);
+          }),
+        ),
       ],
       child: Directionality(
         textDirection: TextDirection.rtl,

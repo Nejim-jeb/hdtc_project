@@ -6,6 +6,7 @@ import 'package:hdtc_project/utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
+import 'package:printing/printing.dart';
 //import 'package:universal_html/html.dart' as html;
 import 'dart:html' as html;
 
@@ -65,9 +66,9 @@ class PdfAPI {
 
   static Future generateUniPdf(
       {required String uniName, required List<Map> uniData}) async {
-    // final fontFromPackage = await PdfGoogleFonts.sourceSans3SemiBold();
-    final fontFromAsset = await rootBundle.load('fonts/Arial.ttf');
-    Font font = Font.ttf(fontFromAsset);
+    final font = await PdfGoogleFonts.sourceSans3SemiBold();
+    //  final fontFromAsset = await rootBundle.load('fonts/Cairo-Regular.ttf');
+    //  Font font = Font.ttf(fontFromAsset);
 
     // final fontArabic = await PdfGoogleFonts.notoKufiArabicExtraLight();
     // String font = 'Cairo';
@@ -124,37 +125,34 @@ class PdfAPI {
         header: (context) =>
             buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
         build: (context) => [
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: Table.fromTextArray(
-              columnWidths: {
-                0: const IntrinsicColumnWidth(flex: 1.2),
-                2: const IntrinsicColumnWidth(flex: 0.8),
-                4: const IntrinsicColumnWidth(flex: 1.6),
-                5: const IntrinsicColumnWidth(flex: 1.3),
-                6: const IntrinsicColumnWidth(flex: 1),
-              },
-              cellHeight: 50,
-              cellAlignment: Alignment.center,
-              cellStyle: const TextStyle(
-                fontSize: 9,
-              ),
-              cellDecoration: (index, data, rowNum) {
-                final defaultColor = const BoxDecoration().color;
-                if (index == 0) {
-                  return BoxDecoration(color: PdfColor.fromHex(columnColor));
-                } else {
-                  return BoxDecoration(color: defaultColor);
-                }
-              },
-              headerHeight: 1,
-              headerAlignment: Alignment.center,
-              headerDecoration:
-                  BoxDecoration(color: PdfColor.fromHex(headerColor)),
-              headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
-              headers: headers,
-              data: uniMapToListofLists(map: uniData, uniName: uniName),
+          Table.fromTextArray(
+            columnWidths: {
+              0: const IntrinsicColumnWidth(flex: 1.2),
+              2: const IntrinsicColumnWidth(flex: 0.8),
+              4: const IntrinsicColumnWidth(flex: 1.6),
+              5: const IntrinsicColumnWidth(flex: 1.3),
+              6: const IntrinsicColumnWidth(flex: 1),
+            },
+            cellHeight: 50,
+            cellAlignment: Alignment.center,
+            cellStyle: const TextStyle(
+              fontSize: 9,
             ),
+            cellDecoration: (index, data, rowNum) {
+              final defaultColor = const BoxDecoration().color;
+              if (index == 0) {
+                return BoxDecoration(color: PdfColor.fromHex(columnColor));
+              } else {
+                return BoxDecoration(color: defaultColor);
+              }
+            },
+            headerHeight: 1,
+            headerAlignment: Alignment.center,
+            headerDecoration:
+                BoxDecoration(color: PdfColor.fromHex(headerColor)),
+            headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+            headers: headers,
+            data: uniMapToListofLists(map: uniData, uniName: uniName),
           )
         ],
       ),
@@ -164,9 +162,9 @@ class PdfAPI {
   }
 
   static Future generateFieldPdf({required List<Map> fieldData}) async {
-    //    final font = await PdfGoogleFonts.sourceSans3SemiBold();
-    final fontFromAsset = await rootBundle.load('fonts/Arial.ttf');
-    Font font = Font.ttf(fontFromAsset);
+    final font = await PdfGoogleFonts.sourceSans3SemiBold();
+    // final fontFromAsset = await rootBundle.load('fonts/Cairo-Regular.ttf');
+    // Font font = Font.ttf(fontFromAsset);
 
     final imageJpj =
         (await rootBundle.load('hdtc_logo2.jpg')).buffer.asUint8List();
@@ -212,56 +210,43 @@ class PdfAPI {
     pdf.addPage(
       MultiPage(
         footer: (context) {
-          return Table(children: [
-            TableRow(children: [
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: Text('حلو'),
-              ),
-              Text('text1'),
-              Text('text1'),
-            ])
-          ]);
-          // return Padding(
-          //     padding: const EdgeInsets.only(top: 8),
-          //     child: Text(footerText, style: TextStyle(font: font)));
+          return Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(footerText, style: TextStyle(font: font)));
         },
         pageTheme: pageTheme,
         header: (context) =>
             buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
         build: (context) => [
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: Table.fromTextArray(
-              columnWidths: {
-                0: const IntrinsicColumnWidth(flex: 1.2),
-                2: const IntrinsicColumnWidth(flex: 0.8),
-                4: const IntrinsicColumnWidth(flex: 1.6),
-                5: const IntrinsicColumnWidth(flex: 1.3),
-                6: const IntrinsicColumnWidth(flex: 1),
-              },
-              cellHeight: 50,
-              cellAlignment: Alignment.center,
-              cellStyle: const TextStyle(
-                fontSize: 9,
-              ),
-              cellDecoration: (index, data, rowNum) {
-                final defaultColor = const BoxDecoration().color;
-
-                if (index == 0) {
-                  return BoxDecoration(color: PdfColor.fromHex(columnColor));
-                } else {
-                  return BoxDecoration(color: defaultColor);
-                }
-              },
-              headerHeight: 1,
-              headerAlignment: Alignment.center,
-              headerDecoration:
-                  BoxDecoration(color: PdfColor.fromHex(headerColor)),
-              headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
-              headers: headers,
-              data: fieldMapToListofLists(map: fieldData),
+          Table.fromTextArray(
+            columnWidths: {
+              0: const IntrinsicColumnWidth(flex: 1.2),
+              2: const IntrinsicColumnWidth(flex: 0.8),
+              4: const IntrinsicColumnWidth(flex: 1.6),
+              5: const IntrinsicColumnWidth(flex: 1.3),
+              6: const IntrinsicColumnWidth(flex: 1),
+            },
+            cellHeight: 50,
+            cellAlignment: Alignment.center,
+            cellStyle: const TextStyle(
+              fontSize: 9,
             ),
+            cellDecoration: (index, data, rowNum) {
+              final defaultColor = const BoxDecoration().color;
+
+              if (index == 0) {
+                return BoxDecoration(color: PdfColor.fromHex(columnColor));
+              } else {
+                return BoxDecoration(color: defaultColor);
+              }
+            },
+            headerHeight: 1,
+            headerAlignment: Alignment.center,
+            headerDecoration:
+                BoxDecoration(color: PdfColor.fromHex(headerColor)),
+            headerStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+            headers: headers,
+            data: fieldMapToListofLists(map: fieldData),
           )
         ],
       ),
