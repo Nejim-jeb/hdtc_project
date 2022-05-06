@@ -40,7 +40,7 @@ class _UserSideBarState extends State<UserSideBar> {
                             await _authService.signOut(context);
                           },
                           child: const Text(
-                            'تسجيل خروج',
+                            'تسجيل الخروج',
                             style: TextStyle(fontSize: 20, color: Colors.black),
                           ),
                         ),

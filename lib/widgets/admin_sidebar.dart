@@ -129,7 +129,7 @@ class _AdminSideBarState extends State<AdminSideBar> {
                             setState(() {});
                           },
                           child: const Text(
-                            'تسجيل خروج',
+                            'تسجيل الخروج',
                             style: TextStyle(fontSize: 20, color: Colors.black),
                           ),
                         ),
