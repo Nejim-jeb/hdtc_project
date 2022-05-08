@@ -16,7 +16,15 @@ class University {
     return {
       'name': name,
       'fields': fields,
-      'specs': specs,
+      'specializations': specs,
+    };
+  }
+
+  Map<String, dynamic> toMap2() {
+    return {
+      'name': name,
+      'fields': FieldValue.arrayUnion([]),
+      'specializations': FieldValue.arrayUnion([]),
     };
   }
 
@@ -24,7 +32,7 @@ class University {
     return University(
       name: map['name'] ?? '',
       fields: List<String>.from(map['fields']),
-      specs: List<Map<String, dynamic>>.from(map['specs']),
+      specs: List<Map<String, dynamic>>.from(map['specializations']),
     );
   }
 
@@ -32,7 +40,7 @@ class University {
     return University(
       name: doc['name'] ?? '',
       fields: List<String>.from(doc['fields']),
-      specs: List<Map<String, dynamic>>.from(doc['specs']),
+      specs: List<Map<String, dynamic>>.from(doc['specializations']),
     );
   }
 

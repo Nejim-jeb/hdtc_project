@@ -23,7 +23,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late TextEditingController _userNameController;
   String? selectedRole;
   final AuthService _authService = AuthService();
-  final GlobalKey _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -48,7 +48,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       body: Center(
         child: Form(
-          // TODO: Form Validation
           key: _formKey,
           child: Row(
             children: [
@@ -66,6 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: MyConstants.formTextFieldInputDecoration(
                             hintText: 'الإيميل'),
                         controller: _emailController,
+                        validator: validateEmail,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -78,6 +78,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             hintText: 'كلمة المرور'),
                         obscureText: true,
                         controller: _passwordController,
+                        validator: (val) =>
+                            val!.length > 5 ? null : 'كلمة المرور غير صالحة',
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -89,12 +91,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: MyConstants.formTextFieldInputDecoration(
                             hintText: 'اسم المستخدم'),
                         controller: _userNameController,
+                        validator: (val) =>
+                            val == '' ? 'هذا الحقل مطلوب' : null,
                       ),
                     ),
                     const SizedBox(height: 15),
                     SizedBox(
                       width: width * 0.5,
                       child: DropdownButtonFormField<String>(
+                        validator: (val) =>
+                            val == '' || val == null ? 'هذا الحقل مطلوب' : null,
                         decoration: MyConstants.formTextFieldInputDecoration(
                             hintText: 'الصلاحية'),
                         value: selectedRole,
@@ -110,16 +116,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             fixedSize: Size(width * 0.20, 46)),
-                        onPressed: () {
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            await _authService.signUpWithEmailAndPassword(
+                              context: context,
+                              email: _emailController.text.trim().toLowerCase(),
+                              password:
+                                  _passwordController.text.trim().toLowerCase(),
+                              userName:
+                                  _userNameController.text.trim().toLowerCase(),
+                              role: selectedRole!.trim().toLowerCase(),
+                            );
+                            _formKey.currentState!.reset();
+                          }
                           // TODO: Form if Valid
-                          _authService.signUpWithEmailAndPassword(
-                            email: _emailController.text.trim().toLowerCase(),
-                            password:
-                                _passwordController.text.trim().toLowerCase(),
-                            userName:
-                                _userNameController.text.trim().toLowerCase(),
-                            role: selectedRole!.trim().toLowerCase(),
-                          );
                         },
                         child: const Text('إنشاء حساب')),
                   ],
@@ -130,5 +140,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  String? validateEmail(String? value) {
+    Pattern pattern =
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?)*$";
+    RegExp regex = RegExp(pattern as String);
+    if (!regex.hasMatch(value!)) {
+      return 'إيميل غير صالح';
+    } else {
+      return null;
+    }
   }
 }

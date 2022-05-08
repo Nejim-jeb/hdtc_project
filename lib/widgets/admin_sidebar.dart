@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/screens/home.dart';
 import 'package:hdtc_project/screens/sign_up.dart';
+import 'package:hdtc_project/screens/view_universities.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 
 class AdminSideBar extends StatefulWidget {
@@ -12,6 +13,19 @@ class AdminSideBar extends StatefulWidget {
 }
 
 class _AdminSideBarState extends State<AdminSideBar> {
+  late ScrollController myScrollController;
+  @override
+  void initState() {
+    myScrollController = ScrollController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    myScrollController.dispose();
+    super.dispose();
+  }
+
   final AuthService _authService = AuthService();
 
   bool isDesktop(BuildContext context) {
@@ -44,8 +58,6 @@ class _AdminSideBarState extends State<AdminSideBar> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          settings: const RouteSettings(
-                                              name: 'HomeScreen'),
                                           builder: ((context) =>
                                               const Directionality(
                                                   textDirection:
@@ -62,32 +74,49 @@ class _AdminSideBarState extends State<AdminSideBar> {
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
                         width: 200,
                         child: TextButton(
-                          onPressed: null,
+                          onPressed: widget.currentIndex == 2
+                              ? null
+                              : () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: ((context) =>
+                                              const Directionality(
+                                                  textDirection:
+                                                      TextDirection.rtl,
+                                                  child:
+                                                      UniversitiesScreen()))));
+                                },
                           child: Text(
                             'عرض الجامعات',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
+                            style: TextStyle(
+                                fontWeight: widget.currentIndex == 2
+                                    ? FontWeight.bold
+                                    : null,
+                                fontSize: 20,
+                                color: Colors.black),
                           ),
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: 200,
-                        child: TextButton(
-                          onPressed: null,
-                          child: Text(
-                            'عرض المستخدمين',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // const Padding(
+                    //   padding: EdgeInsets.all(8.0),
+                    //   child: SizedBox(
+                    //     width: 200,
+                    //     child: TextButton(
+                    //       onPressed: null,
+                    //       child: Text(
+                    //         'عرض المستخدمين',
+                    //         style: TextStyle(fontSize: 20, color: Colors.black),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
@@ -129,7 +158,7 @@ class _AdminSideBarState extends State<AdminSideBar> {
                             setState(() {});
                           },
                           child: const Text(
-                            'تسجيل الخروج',
+                            'تسجيل خروج',
                             style: TextStyle(fontSize: 20, color: Colors.black),
                           ),
                         ),

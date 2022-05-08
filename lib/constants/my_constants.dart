@@ -19,6 +19,6 @@ class MyConstants {
           borderRadius: BorderRadius.circular(8),
         ),
         focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.shade800)));
+            borderSide: BorderSide(color: Colors.grey.shade900)));
   }
 }

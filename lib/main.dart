@@ -23,6 +23,7 @@ import 'package:flutter/foundation.dart'
 // TODO: MATERIAL APP BUILDER => Directionality to all app and set custom navigator or router to App
 // TODO: LOAD LOGO FROM FIRESTORGE PUBLIC NOW TRY TO MAKE PRIVATE WITH RULES
 // Fix: Unfocus After field selection + signout (focus node used after dispose error)
+//TODO: Add From key with validation and clear form after submit
 
 void main() async {
   LicenseRegistry.addLicense(() async* {
