@@ -6,6 +6,7 @@ import 'package:hdtc_project/widgets/admin_sidebar.dart';
 import '../constants/my_constants.dart';
 import '../services/firestore_services.dart';
 import '../utils.dart';
+import '../widgets/back_Button.dart';
 
 class UniversityScreen extends StatefulWidget {
   final String uniName;
@@ -101,6 +102,7 @@ class _UniversityScreenState extends State<UniversityScreen> {
                         'إضافة فرع',
                         textAlign: TextAlign.center,
                       )),
+                  const MyBackButton(),
                 ],
               );
             } else {
@@ -217,7 +219,8 @@ class _UniversityScreenState extends State<UniversityScreen> {
                             ),
                           ],
                         ),
-                      )
+                      ),
+                      const MyBackButton()
                     ],
                   ),
                 ),

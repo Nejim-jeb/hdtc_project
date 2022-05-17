@@ -26,7 +26,7 @@ class _UserSideBarState extends State<UserSideBar> {
               Container(
                 width: 200,
                 height: height,
-                color: Colors.grey[200],
+                color: Colors.grey[300],
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

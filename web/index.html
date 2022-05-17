@@ -48,6 +48,8 @@
       }
       scriptLoaded = true;
       var scriptTag = document.createElement('script');
+      // line below added by me 
+      document.addEventListener('touchstart', {});
       scriptTag.src = 'main.dart.js';
       scriptTag.type = 'application/javascript';
       document.body.append(scriptTag);

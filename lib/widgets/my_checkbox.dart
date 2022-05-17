@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 
 class MyCheckBox extends StatefulWidget {
   bool fromUni;
@@ -28,7 +29,7 @@ class _MyCheckBoxState extends State<MyCheckBox> {
       child: Row(
         children: [
           Checkbox(
-            activeColor: Colors.blue,
+            activeColor: MyConstants.primaryColor,
             checkColor: Colors.white,
             value: widget.fromUni,
             onChanged: widget.myOnChanged,

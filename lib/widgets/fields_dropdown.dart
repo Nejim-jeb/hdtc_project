@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../constants/my_constants.dart';
 import '../utils.dart';
 
@@ -22,15 +21,22 @@ class FieldsDropDownButton extends StatefulWidget {
 }
 
 class _FieldsDropDownButtonState extends State<FieldsDropDownButton> {
+  bool isDesktop(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 600;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return SizedBox(
-      width: 300,
+      //Fix
+      width: 360,
       child: DropdownButtonFormField<String>(
+          iconDisabledColor: Colors.grey,
+          iconEnabledColor: MyConstants.secondaryColor,
           //  key: _dropDownkey,
           decoration:
-              MyConstants.formTextFieldInputDecoration(hintText: 'اختر فرع'),
-          //   hint: const Text('Select Field'),
+              MyConstants.formDropDownInputDecoration(hintText: 'اختر فرع'),
           value: widget.selectedField,
           items: widget.fieldsList!
               .map((e) => DropdownMenuItem(
@@ -39,20 +45,7 @@ class _FieldsDropDownButtonState extends State<FieldsDropDownButton> {
             ..sort((a, b) {
               return a.value!.toLowerCase().compareTo(b.value!.toLowerCase());
             }),
-          onChanged: widget.myOnChanged
-          //  (val) {
-          //   if (widget.passedFieldData!.isNotEmpty) {
-          //     widget.passedFieldData!.clear();
-          //   }
-          //   if (val == null) {
-          //     print('value on changed is null');
-          //   }
-          //   FocusScope.of(context).requestFocus(widget.focusNode);
-          //   setState(() {
-          //     widget.selectedField = val;
-          //   });
-          // }),
-          ),
+          onChanged: widget.myOnChanged),
     );
   }
 }

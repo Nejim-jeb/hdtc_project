@@ -43,7 +43,7 @@ class _AdminSideBarState extends State<AdminSideBar> {
               Container(
                 width: 200,
                 height: height,
-                color: Colors.grey[200],
+                color: Colors.grey[300],
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -52,6 +52,7 @@ class _AdminSideBarState extends State<AdminSideBar> {
                       child: SizedBox(
                         width: 200,
                         child: TextButton(
+                          style: TextButton.styleFrom(),
                           onPressed: widget.currentIndex == 1
                               ? null
                               : () {
@@ -66,11 +67,11 @@ class _AdminSideBarState extends State<AdminSideBar> {
                                 },
                           child: Text('إنشاء PDF',
                               style: TextStyle(
-                                  fontWeight: widget.currentIndex == 1
-                                      ? FontWeight.bold
-                                      : null,
-                                  fontSize: 20,
-                                  color: Colors.black)),
+                                fontWeight: widget.currentIndex == 1
+                                    ? FontWeight.bold
+                                    : null,
+                                fontSize: 20,
+                              )),
                         ),
                       ),
                     ),
@@ -95,11 +96,11 @@ class _AdminSideBarState extends State<AdminSideBar> {
                           child: Text(
                             'عرض الجامعات',
                             style: TextStyle(
-                                fontWeight: widget.currentIndex == 2
-                                    ? FontWeight.bold
-                                    : null,
-                                fontSize: 20,
-                                color: Colors.black),
+                              fontWeight: widget.currentIndex == 2
+                                  ? FontWeight.bold
+                                  : null,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),
@@ -112,7 +113,7 @@ class _AdminSideBarState extends State<AdminSideBar> {
                     //       onPressed: null,
                     //       child: Text(
                     //         'عرض المستخدمين',
-                    //         style: TextStyle(fontSize: 20, color: Colors.black),
+                    //         style: TextStyle(fontSize: 20, ),
                     //       ),
                     //     ),
                     //   ),
@@ -137,11 +138,11 @@ class _AdminSideBarState extends State<AdminSideBar> {
                           child: Text(
                             'إنشاء مستخدم جديد',
                             style: TextStyle(
-                                fontWeight: widget.currentIndex == 4
-                                    ? FontWeight.bold
-                                    : null,
-                                fontSize: 20,
-                                color: Colors.black),
+                              fontWeight: widget.currentIndex == 4
+                                  ? FontWeight.bold
+                                  : null,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),
@@ -159,7 +160,9 @@ class _AdminSideBarState extends State<AdminSideBar> {
                           },
                           child: const Text(
                             'تسجيل خروج',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),

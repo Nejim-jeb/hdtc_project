@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/screens/branch_universities.dart';
 import 'package:hdtc_project/widgets/admin_sidebar.dart';
+import 'package:hdtc_project/widgets/back_Button.dart';
 
 class UniversitiesScreen extends StatefulWidget {
   const UniversitiesScreen({Key? key}) : super(key: key);
@@ -23,10 +25,11 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 OutlinedButton(
                     style: OutlinedButton.styleFrom(
+                        backgroundColor: MyConstants.primaryColor,
                         fixedSize: Size(width * 0.30, 45)),
                     onPressed: () {
                       Navigator.push(
@@ -36,9 +39,19 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                                   const BranchUniversitiesScreen(
                                       branch: 'bachelor')));
                     },
-                    child: const Text('البكالوريوس')),
+                    child: Text(
+                      'البكالوريوس',
+                      style: TextStyle(
+                          color: MyConstants.secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
+                    )),
+                const SizedBox(
+                  height: 10,
+                ),
                 OutlinedButton(
                     style: OutlinedButton.styleFrom(
+                        backgroundColor: MyConstants.primaryColor,
                         fixedSize: Size(width * 0.30, 45)),
                     onPressed: () {
                       Navigator.push(
@@ -48,9 +61,19 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                                   const BranchUniversitiesScreen(
                                       branch: 'master')));
                     },
-                    child: const Text('الماستر')),
+                    child: Text(
+                      'الماستر',
+                      style: TextStyle(
+                          color: MyConstants.secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
+                    )),
+                const SizedBox(
+                  height: 10,
+                ),
                 OutlinedButton(
                     style: OutlinedButton.styleFrom(
+                        backgroundColor: MyConstants.primaryColor,
                         fixedSize: Size(width * 0.30, 45)),
                     onPressed: () {
                       Navigator.push(
@@ -60,9 +83,19 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                                   const BranchUniversitiesScreen(
                                       branch: 'phd')));
                     },
-                    child: const Text('الدكتوراه')),
+                    child: Text(
+                      'الدكتوراه',
+                      style: TextStyle(
+                          color: MyConstants.secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
+                    )),
+                const SizedBox(
+                  height: 10,
+                ),
                 OutlinedButton(
                     style: OutlinedButton.styleFrom(
+                        backgroundColor: MyConstants.primaryColor,
                         fixedSize: Size(width * 0.30, 45)),
                     onPressed: () {
                       Navigator.push(
@@ -72,10 +105,20 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                                   const BranchUniversitiesScreen(
                                       branch: 'vocational_schools')));
                     },
-                    child: const Text('المدارس المهنية')),
+                    child: Text(
+                      'المدارس المهنية',
+                      style: TextStyle(
+                          color: MyConstants.secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
+                    )),
+                const SizedBox(
+                  height: 10,
+                ),
               ],
             ),
           ),
+          const MyBackButton()
         ],
       )),
     );

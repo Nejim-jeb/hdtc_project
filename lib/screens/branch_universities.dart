@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hdtc_project/services/firestore_services.dart';
 
 import '../widgets/admin_sidebar.dart';
+import '../widgets/back_Button.dart';
 import '../widgets/universities_screen_body.dart';
 
 class BranchUniversitiesScreen extends StatefulWidget {
@@ -51,11 +52,12 @@ class _BranchUniversitiesScreenState extends State<BranchUniversitiesScreen> {
                     final universities = snapshot.data!.docs;
 
                     return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const AdminSideBar(currentIndex: 2),
                         UniversitiesScreenBody(
-                            data: universities, branch: widget.branch)
+                            data: universities, branch: widget.branch),
+                        const MyBackButton(),
                       ],
                     );
                   }

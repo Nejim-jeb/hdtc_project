@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/models/user_data.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 import 'package:hdtc_project/services/firestore_services.dart';
@@ -8,7 +9,6 @@ import 'package:hdtc_project/widgets/interest_radiobutton_widget.dart';
 import 'package:hdtc_project/widgets/user_sidebar.dart';
 import '../services/pdf_services.dart';
 import '../widgets/fields_dropdown.dart';
-import '../widgets/my_checkbox.dart';
 import '../widgets/admin_sidebar.dart';
 import '../widgets/uni_dropdown.dart';
 
@@ -42,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? currency;
   final GlobalKey _formkey = GlobalKey<FormState>();
   final GlobalKey _dropDownkey = GlobalKey();
-
   late Stream<QuerySnapshot> myStream;
   late Stream<UserData?> userStream;
 
@@ -58,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _fieldList = [];
     userStream = fireStoreServices.getUserDoc(
         userId: FirebaseAuth.instance.currentUser!.uid);
-
     myStream = FireStoreServices.getData(collectionName: selectedRadio!);
   }
 
@@ -70,6 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: StreamBuilder<UserData?>(
@@ -77,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final userData = snapshot.data;
-              print('data in first stream builder ${userData!.email}');
               return StreamBuilder<QuerySnapshot>(
                   stream: myStream,
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -120,21 +119,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                             _fieldList.addAll(fieldsSet);
                           }
-
-                          if (selectedField != null) {
+                          if (selectedField != null && selectedlang == null) {
                             for (var doc in documents) {
                               final fieldRes = List.of(doc['specializations']);
                               for (var item in fieldRes) {
                                 item['name'] = '${doc.get('name')}';
                               }
                               for (Map fieldData in fieldRes) {
-                                if (fieldData.containsValue(selectedField)) {
+                                if (fieldData['field'] == selectedField) {
                                   passedFieldData.add(fieldData);
                                 }
                               }
                             }
                           }
-
                           return Scaffold(
                             drawer: !isDesktop(context)
                                 ? SizedBox(
@@ -164,151 +161,366 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )
                                 : null,
-                            body: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                userData.role == 'admin'
-                                    ? const AdminSideBar(currentIndex: 1)
-                                    : const UserSideBar(currentIndex: 1),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      InterestRadioButtons(
-                                        onChanged: ((value) {
-                                          selectedRadio = value;
-                                          setState(() {
-                                            selectedUni = null;
-                                            selectedField = null;
-                                            selectedField = null;
-                                            _uniList.clear();
-                                            _fieldList.clear();
-                                            myStream =
-                                                FireStoreServices.getData(
-                                                    collectionName: value ==
-                                                            'vocational schools'
-                                                        ? value.replaceFirst(
-                                                            ' ', '_')
-                                                        : value);
-                                          });
-                                        }),
-                                        selectedChoice: selectedRadio!,
-                                      ),
-                                      MyCheckBox(
-                                          myOnChanged: (value) {
-                                            setState(() {
-                                              if (selectedField != null) {
-                                                selectedField = null;
-                                              }
-                                              if (selectedUni != null) {
-                                                selectedUni = null;
-                                              }
-                                              if (_uniList.isNotEmpty) {
-                                                selectedUni = null;
-                                                _uniList.clear();
-                                              }
-                                              myStream =
-                                                  FireStoreServices.getData(
-                                                      collectionName:
-                                                          selectedRadio!);
-                                              fromUni = value!;
-                                            });
-                                          },
-                                          selectedUni: selectedUni,
-                                          fromUni: fromUni,
-                                          selectedField: selectedField,
-                                          uniList: _uniList),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      fromUni == true
-                                          ? UnisDropDownButton(
-                                              myOnChanged: (value) {
-                                                setState(() {
-                                                  selectedUni = value;
-                                                });
-                                              },
-                                              focusNode: myFocusNode,
-                                              passedFieldData: passedFieldData,
-                                              selectedUni: selectedUni,
-                                              unisList: _uniList,
+                            body: SingleChildScrollView(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  userData!.role == 'admin'
+                                      ? const AdminSideBar(currentIndex: 1)
+                                      : const UserSideBar(currentIndex: 1),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Material(
+                                                color: fromUni == false
+                                                    ? MyConstants.primaryColor
+                                                    : MyConstants.appGrey,
+                                                child: InkWell(
+                                                  splashColor: Colors.grey[300],
+                                                  hoverColor: MyConstants
+                                                      .secondaryColor,
+                                                  onTap: () {
+                                                    if (fromUni != false) {
+                                                      setState(() {
+                                                        fromUni = false;
+                                                        selectedField = null;
+                                                        selectedUni = null;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border(
+                                                            left: BorderSide(
+                                                                color:
+                                                                    MyConstants
+                                                                        .appGrey,
+                                                                width: 1.3))),
+                                                    // width: width * 0.3 + 100,
+                                                    height: 50,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'وفقاً للفرع',
+                                                        style: TextStyle(
+                                                            color: fromUni ==
+                                                                    true
+                                                                ? Colors.white
+                                                                    .withOpacity(
+                                                                        0.5)
+                                                                : Colors.white),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Material(
+                                                color: fromUni == true
+                                                    ? MyConstants.primaryColor
+                                                    : MyConstants.appGrey,
+                                                child: InkWell(
+                                                  splashColor: Colors.grey[300],
+                                                  hoverColor: MyConstants
+                                                      .secondaryColor,
+                                                  onTap: () {
+                                                    if (fromUni != true) {
+                                                      setState(() {
+                                                        fromUni = true;
+                                                        selectedField = null;
+                                                        selectedUni = null;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: SizedBox(
+                                                    width: width * 0.3 + 100,
+                                                    height: 50,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'وفقاً للجامعة',
+                                                        style: TextStyle(
+                                                            color: fromUni ==
+                                                                    false
+                                                                ? Colors.white
+                                                                    .withOpacity(
+                                                                        0.5)
+                                                                : Colors.white),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                             )
-                                          : FieldsDropDownButton(
-                                              myOnChanged: (value) {
-                                                if (passedFieldData
-                                                    .isNotEmpty) {
-                                                  passedFieldData.clear();
-                                                }
-                                                setState(() {
-                                                  selectedField = value;
-                                                  // FocusScope.of(context)
-                                                  //     .requestFocus(myFocusNode);
-                                                });
-                                              },
-                                              focusNode: myFocusNode,
-                                              fieldsList: _fieldList,
-                                              passedFieldData: passedFieldData,
-                                              selectedField: selectedField),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Center(
-                                        child: ElevatedButton(
-                                            onPressed: fromUni == true
-                                                ? () async {
-                                                    //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
-                                                    try {
-                                                      await PdfAPI.generateUniPdf(
-                                                          uniName: selectedUni!,
-                                                          uniData:
-                                                              passedMapList!);
-                                                    } catch (e) {
-                                                      showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (context) =>
-                                                                  AlertDialog(
-                                                                    title: Text(
-                                                                        e.toString()),
-                                                                  ));
-                                                    }
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: InterestRadioButtons(
+                                            onChanged: ((value) {
+                                              selectedRadio = value;
+                                              setState(() {
+                                                selectedUni = null;
+                                                selectedField = null;
+                                                selectedlang = null;
+                                                _uniList.clear();
+                                                _fieldList.clear();
+                                                myStream =
+                                                    FireStoreServices.getData(
+                                                        collectionName: value ==
+                                                                'vocational schools'
+                                                            ? value
+                                                                .replaceFirst(
+                                                                    ' ', '_')
+                                                            : value);
+                                              });
+                                            }),
+                                            selectedChoice: selectedRadio!,
+                                          ),
+                                        ),
+                                        // MyCheckBox(
+                                        //     myOnChanged: (value) {
+                                        //       setState(() {
+                                        //         if (selectedField != null) {
+                                        //           selectedField = null;
+                                        //         }
+                                        //         if (selectedlang != null) {
+                                        //           selectedlang = null;
+                                        //         }
+                                        //         if (selectedUni != null) {
+                                        //           selectedUni = null;
+                                        //         }
+                                        //         if (_uniList.isNotEmpty) {
+                                        //           selectedUni = null;
+                                        //           _uniList.clear();
+                                        //         }
+                                        //         myStream = FireStoreServices.getData(
+                                        //             collectionName:
+                                        //                 selectedRadio! ==
+                                        //                         'vocational schools'
+                                        //                     ? selectedRadio!
+                                        //                         .replaceFirst(
+                                        //                             ' ', '_')
+                                        //                     : selectedRadio!);
+                                        //         fromUni = value!;
+                                        //       });
+                                        //     },
+                                        //     selectedUni: selectedUni,
+                                        //     fromUni: fromUni,
+                                        //     selectedField: selectedField,
+                                        //     uniList: _uniList),
 
-                                                    // setState(() {
-                                                    //   selectedUni = null;
-                                                    //   passedMapList = null;
-                                                    // });
-                                                  }
-                                                : (() async {
-                                                    try {
-                                                      await PdfAPI
-                                                          .generateFieldPdf(
-                                                              fieldData:
-                                                                  passedFieldData);
+                                        fromUni == true
+                                            ? Column(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: UnisDropDownButton(
+                                                      myOnChanged: (value) {
+                                                        setState(() {
+                                                          selectedUni = value;
+                                                          selectedlang = null;
+                                                        });
+                                                      },
+                                                      focusNode: myFocusNode,
+                                                      passedFieldData:
+                                                          passedFieldData,
+                                                      selectedUni: selectedUni,
+                                                      unisList: _uniList,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: LangDropDownButton(
+                                                      fromField: false,
+                                                      selectedField:
+                                                          selectedField,
+                                                      selectedUni: selectedUni,
+                                                      selectedLang:
+                                                          selectedlang,
+                                                      focusNode: myFocusNode,
+                                                      myOnChanged: (val) {
+                                                        setState(() {
+                                                          selectedlang = val;
+                                                        });
+                                                      },
+                                                    ),
+                                                  )
+                                                ],
+                                              )
+                                            : Column(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: FieldsDropDownButton(
+                                                        myOnChanged: (value) {
+                                                          if (passedFieldData
+                                                              .isNotEmpty) {
+                                                            passedFieldData
+                                                                .clear();
+                                                          }
+                                                          setState(() {
+                                                            selectedField =
+                                                                value;
+                                                            selectedlang = null;
 
-                                                      passedFieldData = [];
-                                                    } catch (e) {
-                                                      showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (context) =>
-                                                                  AlertDialog(
-                                                                    title: Text(
-                                                                        e.toString()),
-                                                                  ));
+                                                            // FocusScope.of(context)
+                                                            //     .requestFocus(myFocusNode);
+                                                          });
+                                                        },
+                                                        focusNode: myFocusNode,
+                                                        fieldsList: _fieldList,
+                                                        passedFieldData:
+                                                            passedFieldData,
+                                                        selectedField:
+                                                            selectedField),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: LangDropDownButton(
+                                                      fromField: true,
+                                                      selectedField:
+                                                          selectedField,
+                                                      selectedUni: selectedUni,
+                                                      selectedLang:
+                                                          selectedlang,
+                                                      focusNode: myFocusNode,
+                                                      myOnChanged: (val) {
+                                                        setState(() {
+                                                          selectedlang = val;
+                                                        });
+                                                      },
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ElevatedButton(
+                                              style: Theme.of(context)
+                                                  .elevatedButtonTheme
+                                                  .style!
+                                                  .copyWith(
+                                                    minimumSize:
+                                                        MaterialStateProperty
+                                                            .all<Size>(
+                                                                const Size(
+                                                                    95, 40)),
+                                                    maximumSize:
+                                                        MaterialStateProperty
+                                                            .all<Size>(
+                                                                const Size(
+                                                                    95, 40)),
+                                                    padding:
+                                                        MaterialStateProperty
+                                                            .all<EdgeInsets>(
+                                                                EdgeInsets
+                                                                    .zero),
+                                                  ),
+                                              onPressed: fromUni == true
+                                                  ? () async {
+                                                      //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
+                                                      try {
+                                                        await PdfAPI.generateUniPdf(
+                                                            branch:
+                                                                selectedRadio!,
+                                                            lang: selectedlang,
+                                                            uniName:
+                                                                selectedUni!,
+                                                            uniData:
+                                                                passedMapList!);
+                                                        setState(() {
+                                                          selectedUni = null;
+                                                          selectedlang = null;
+                                                        });
+                                                      } catch (e) {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (context) =>
+                                                                    AlertDialog(
+                                                                      title: Text(
+                                                                          e.toString()),
+                                                                    ));
+                                                      }
                                                     }
-                                                    //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
-                                                  }),
-                                            child: const Text('إنشاء الملف')),
-                                      ),
-                                    ],
+                                                  : (() async {
+                                                      try {
+                                                        await PdfAPI.generateFieldPdf(
+                                                            branch:
+                                                                selectedRadio!,
+                                                            lang: selectedlang,
+                                                            fieldData:
+                                                                passedFieldData);
+                                                        setState(() {
+                                                          passedFieldData = [];
+                                                          selectedField = null;
+                                                          selectedlang = null;
+                                                        });
+                                                      } catch (e) {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (context) =>
+                                                                    AlertDialog(
+                                                                      title: Text(
+                                                                          e.toString()),
+                                                                    ));
+                                                      }
+                                                      //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
+                                                    }),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(3, 3, 8, 3),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const [
+                                                    Expanded(
+                                                      child: Align(
+                                                        alignment: Alignment
+                                                            .centerRight,
+                                                        child: Icon(
+                                                          Icons
+                                                              .file_download_sharp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Text('إنشاء الملف'),
+                                                  ],
+                                                ),
+                                              )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           );
                         }
-
                       default:
                         return const Center(
                           child: Text('Something Went Wrong'),

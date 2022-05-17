@@ -35,8 +35,9 @@ class _UniversitiesScreenBodyState extends State<UniversitiesScreenBody> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
+          Expanded(
             child: Center(
               child: Directionality(
                 textDirection: TextDirection.ltr,

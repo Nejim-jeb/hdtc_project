@@ -114,9 +114,10 @@ class FireStoreServices {
       {required String fileName,
       required String sheetName,
       required String collectionName}) async {
+    final rowsData = await Utils.readExcelFileData(
+        excelFilePath: fileName, sheetName: sheetName);
+    print('========= ${rowsData.length} ');
     try {
-      final rowsData = await Utils.readExcelFileData(
-          excelFilePath: fileName, sheetName: sheetName);
       rowsData.removeAt(0);
 
       print(rowsData.length);

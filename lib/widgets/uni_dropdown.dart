@@ -22,14 +22,22 @@ class UnisDropDownButton extends StatefulWidget {
 }
 
 class _UnisDropDownButtonState extends State<UnisDropDownButton> {
+  bool isDesktop(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 600;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
     return SizedBox(
-      width: 300,
+      //Fix
+      width: 360,
       child: DropdownButtonFormField<dynamic>(
           //  key: _dropDownkey,
           decoration:
-              MyConstants.formTextFieldInputDecoration(hintText: 'اختر جامعة'),
+              MyConstants.formDropDownInputDecoration(hintText: 'اختر جامعة'),
           //  hint: const Text('Select University'),
           value: widget.selectedUni,
           items: widget.unisList!
@@ -40,6 +48,78 @@ class _UnisDropDownButtonState extends State<UnisDropDownButton> {
               return a.value!.toLowerCase().compareTo(b.value!.toLowerCase());
             }),
           onChanged: widget.myOnChanged
+          //  (val) {
+          //   //   selectedField = null;
+          //   // _fieldList.clear();
+          //   FocusScope.of(context).requestFocus(widget.focusNode);
+          //   setState(() {
+          //     widget.selectedUni = val;
+          //   });
+          // },
+          ),
+    );
+  }
+}
+
+class LangDropDownButton extends StatefulWidget {
+  LangDropDownButton(
+      {Key? key,
+      required this.myOnChanged,
+      required this.focusNode,
+      required this.selectedField,
+      required this.selectedUni,
+      required this.fromField,
+      this.selectedLang})
+      : super(key: key);
+  String? selectedLang;
+  final bool fromField;
+  final String? selectedField;
+  final String? selectedUni;
+  FocusNode? focusNode;
+  ValueChanged myOnChanged;
+  @override
+  State<LangDropDownButton> createState() => _LangDropDownButtonState();
+}
+
+class _LangDropDownButtonState extends State<LangDropDownButton> {
+  bool isDesktop(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 600;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    return Container(
+      padding: const EdgeInsets.only(top: 8),
+      //Fix
+      width: 360,
+      child: DropdownButtonFormField<dynamic>(
+          disabledHint: widget.fromField == true
+              ? const Text('اختر الفرع أولاً')
+              : const Text('اختر الجامعة أولاً'),
+          //  key: _dropDownkey,
+          decoration: MyConstants.formDropDownInputDecoration(
+              hintText: 'اختر لغة',
+              isEnabled: widget.selectedUni != null
+                  ? true
+                  : false || widget.selectedField != null
+                      ? true
+                      : false),
+          //  hint: const Text('Select University'),
+          value: widget.selectedLang,
+          items: MyConstants.langList
+              .map((e) => DropdownMenuItem(
+                  value: e, child: Text((Utils.capitalizeFirstOfEachWord(e)))))
+              .toList()
+            ..sort((a, b) {
+              return a.value!.toLowerCase().compareTo(b.value!.toLowerCase());
+            }),
+          onChanged: widget.selectedField == null && widget.fromField == true ||
+                  widget.selectedUni == null && widget.fromField == false
+              ? null
+              : widget.myOnChanged
           //  (val) {
           //   //   selectedField = null;
           //   // _fieldList.clear();

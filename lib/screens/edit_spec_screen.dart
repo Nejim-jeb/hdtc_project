@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/services/firestore_services.dart';
 import 'package:hdtc_project/widgets/admin_sidebar.dart';
+import 'package:hdtc_project/widgets/back_Button.dart';
 
 import '../constants/my_constants.dart';
 
@@ -202,10 +203,63 @@ class _EditSpecScreenState extends State<EditSpecScreen> {
                           }
                         }
                       },
-                      child: const Text('تعديل المعلومات'))
+                      child: const Text('تعديل المعلومات')),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Colors.red[800], onPrimary: Colors.white),
+                      onPressed: () async {
+                        try {
+                          final initialMap = {
+                            'field': widget.spec['field'],
+                            'lang': widget.spec['lang'],
+                            'location': widget.spec['location'],
+                            'spec': widget.spec['spec'],
+                            'fees': widget.spec['fees'],
+                            'note': widget.spec['note'],
+                          };
+                          await FireStoreServices.deleteSpecialization(
+                              collectionPath: widget.branch,
+                              docId: widget.uniName,
+                              spec: [initialMap]);
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: const Text('تم الحذف بنجاح'),
+                                    actions: [
+                                      OutlinedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('موافق'))
+                                    ],
+                                  ));
+                        } catch (e) {
+                          print(e.toString());
+
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: const Text(
+                                        'حدث خطأ أثناء الحذف الرجاء المحاولة لاحقاً'),
+                                    actions: [
+                                      OutlinedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('موافق'))
+                                    ],
+                                  ));
+                        }
+                      },
+                      child: const Text('حذف التخصص'))
                 ],
               ),
             ),
+            const MyBackButton(),
           ],
         ),
       ),

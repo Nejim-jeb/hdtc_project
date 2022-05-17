@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:hdtc_project/screens/edit_spec_screen.dart';
 import 'package:hdtc_project/services/firestore_services.dart';
-import 'package:hdtc_project/utils.dart';
 import 'package:hdtc_project/widgets/admin_sidebar.dart';
+import 'package:hdtc_project/widgets/specification_card.dart';
 
 import '../constants/my_constants.dart';
+import '../widgets/back_Button.dart';
 
 class UniversitySpecializationScreen extends StatefulWidget {
   // final List<Map> spec;
@@ -66,245 +66,138 @@ class _UniversitySpecializationScreenState
   Widget build(BuildContext context) {
     return DefaultTextStyle(
       style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 35),
-      child: StreamBuilder<DocumentSnapshot>(
-          stream: myStream,
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-
-              case ConnectionState.active:
-                if (snapshot.hasError) {
+      child: Scaffold(
+        body: StreamBuilder<DocumentSnapshot>(
+            stream: myStream,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
                   return const Center(
-                    child: Text('Something Went Wrong please try again later'),
+                    child: CircularProgressIndicator(),
                   );
-                } else {
-                  final data = snapshot.data;
-                  final name = data!['name'];
 
-                  final specs = List.of(data['specializations'])
-                      .where((element) => element.values.contains(widget.field))
-                      .toList();
+                case ConnectionState.active:
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child:
+                          Text('Something Went Wrong please try again later'),
+                    );
+                  } else {
+                    final data = snapshot.data;
+                    final name = data!['name'];
 
-                  return specs.isEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('لا يوجد أي معلومات للعرض'),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    fixedSize: const Size(70, 70),
-                                    shape: const CircleBorder()),
-                                onPressed: () {
-                                  buildSpecDialog();
-                                  //TODO: ADD FIELD TO CURRENT UNI
-                                },
-                                child: const FittedBox(
-                                  child: Text(
-                                    'إضافة\nتخصص',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                )),
-                          ],
-                        )
-                      : Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: Row(
+                    final specs = List.of(data['specializations'])
+                        .where(
+                            (element) => element.values.contains(widget.field))
+                        .toList();
+
+                    return specs.isEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const AdminSideBar(currentIndex: 2),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Flexible(
-                                      child: GridView.builder(
-                                        padding: const EdgeInsets.all(16),
-                                        gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
-                                                childAspectRatio: 1,
-                                                crossAxisCount:
-                                                    isDesktop(context) ? 4 : 2,
-                                                crossAxisSpacing: 25,
-                                                mainAxisSpacing: 25),
-                                        itemBuilder: (context, index) {
-                                          return Container(
-                                            color: Colors.grey[300],
-                                            padding: const EdgeInsets.all(16),
-                                            child: DefaultTextStyle(
-                                              style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight:
-                                                      FontWeight.normal),
-                                              child: GridTile(
-                                                footer: Center(
-                                                  child: Material(
-                                                    color: Colors.grey[300],
-                                                    child: IconButton(
-                                                        onPressed: () {
-                                                          Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          EditSpecScreen(
-                                                                            uniName:
-                                                                                widget.uniName,
-                                                                            branch:
-                                                                                widget.branch,
-                                                                            spec:
-                                                                                specs[index],
-                                                                          )));
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.edit)),
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    FittedBox(
-                                                      fit: BoxFit.scaleDown,
-                                                      child: Text.rich(
-                                                        TextSpan(children: [
-                                                          const TextSpan(
-                                                            text: 'Spec: ',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          TextSpan(
-                                                            text: Utils
-                                                                .capitalizeFirstOfEachWord(
-                                                                    '${specs[index]['spec']}\n'),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        18),
-                                                          ),
-                                                          const TextSpan(
-                                                            text: 'Lang: ',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          TextSpan(
-                                                            text: Utils
-                                                                .capitalizeFirstOfEachWord(
-                                                                    '${specs[index]['lang']}\n'),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        18),
-                                                          ),
-                                                          const TextSpan(
-                                                            text: 'Fees: ',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          TextSpan(
-                                                            text: Utils
-                                                                .capitalizeFirstOfEachWord(
-                                                                    '${specs[index]['fees']}\n'),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        18),
-                                                          ),
-                                                          const TextSpan(
-                                                            text: 'Location: ',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          TextSpan(
-                                                            text: Utils
-                                                                .capitalizeFirstOfEachWord(
-                                                                    '${specs[index]['location']}\n'),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        18),
-                                                          ),
-                                                          const TextSpan(
-                                                            text: 'Note: ',
-                                                            style: TextStyle(
-                                                                fontSize: 20,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          TextSpan(
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        18),
-                                                            text: Utils
-                                                                .capitalizeFirstOfEachWord(
-                                                                    '${specs[index]['note']}\n'),
-                                                          ),
-                                                        ]),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        itemCount: specs.length,
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.all(10),
-                                      child: Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  fixedSize: const Size(70, 70),
-                                                  shape: const CircleBorder()),
-                                              onPressed: () async {
-                                                buildSpecDialog();
-                                              },
-                                              child: const FittedBox(
-                                                child: Text(
-                                                  'إضافة\nتخصص',
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ))),
-                                    ),
-                                  ],
-                                ),
+                              const Text('لا يوجد أي معلومات للعرض'),
+                              const SizedBox(
+                                height: 25,
                               ),
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      fixedSize: const Size(70, 70),
+                                      shape: const CircleBorder()),
+                                  onPressed: () {
+                                    buildSpecDialog(filed: widget.field);
+                                    //TODO: ADD FIELD TO CURRENT UNI
+                                  },
+                                  child: const FittedBox(
+                                    child: Text(
+                                      'إضافة\nتخصص',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )),
+                              const MyBackButton(),
                             ],
-                          ),
-                        );
-                }
-              default:
-                return const Center(
-                  child: Text('Default Case'),
-                );
-            }
+                          )
+                        : Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const AdminSideBar(currentIndex: 2),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        flex: 3,
+                                        child: SingleChildScrollView(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Wrap(
+                                              runSpacing: 10,
+                                              spacing: 15,
+                                              direction: Axis.horizontal,
+                                              // crossAxisAlignment: WrapCrossAlignment.end,
+                                              alignment: WrapAlignment.end,
+                                              children: [
+                                                for (var i = 0;
+                                                    i < specs.length;
+                                                    i++)
+                                                  SpecificationsWidget(
+                                                      spec: specs[i],
+                                                      branch: widget.branch,
+                                                      uniName: widget.uniName),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    fixedSize:
+                                                        const Size(70, 70),
+                                                    shape:
+                                                        const CircleBorder()),
+                                                onPressed: () {
+                                                  buildSpecDialog(
+                                                      filed: widget.field);
+                                                  //TODO: ADD FIELD TO CURRENT UNI
+                                                },
+                                                child: const FittedBox(
+                                                  child: Text(
+                                                    'إضافة\nتخصص',
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                )),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Center(child: MyBackButton()),
+                              ],
+                            ),
+                          );
+                  }
+                default:
+                  return const Center(
+                    child: Text('Default Case'),
+                  );
+              }
 
-            final data = snapshot.data;
-            return const Scaffold();
-          }),
+              final data = snapshot.data;
+              return const Scaffold();
+            }),
+      ),
     );
   }
 
-  Future buildSpecDialog() {
+  Future buildSpecDialog({required String filed}) {
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(

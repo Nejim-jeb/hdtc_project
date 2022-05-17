@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/utils.dart';
 
 class InterestRadioButtons extends StatefulWidget {
@@ -28,7 +29,7 @@ class _InterestRadioButtonsState extends State<InterestRadioButtons> {
 
     return Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: radioList.map((value) {
           if (value == 'bachelor') {
             selectionText = 'بكالوريوس';
@@ -42,6 +43,7 @@ class _InterestRadioButtonsState extends State<InterestRadioButtons> {
           return SizedBox(
             width: 150,
             child: RadioListTile<String>(
+                activeColor: MyConstants.primaryColor,
                 contentPadding: EdgeInsets.zero,
                 title: Text(Utils.capitalizeFirstOfEachWord(selectionText!)),
                 value: value,
