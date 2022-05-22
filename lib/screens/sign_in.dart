@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hdtc_project/models/user.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/services/auth_services.dart';
-import 'package:provider/provider.dart';
 
 class SiginScreen extends StatefulWidget {
   const SiginScreen({Key? key}) : super(key: key);
@@ -12,6 +10,7 @@ class SiginScreen extends StatefulWidget {
 }
 
 class _SiginScreenState extends State<SiginScreen> {
+  bool isObsecure = true;
   late TextEditingController _passwordController;
   late TextEditingController _emailController;
   final AuthService _authService = AuthService();
@@ -21,6 +20,9 @@ class _SiginScreenState extends State<SiginScreen> {
   void initState() {
     super.initState();
     _emailController = TextEditingController();
+    // _emailController.selection =
+    //     TextSelection.collapsed(offset: _emailController.text.length);
+
     _passwordController = TextEditingController();
   }
 
@@ -33,43 +35,106 @@ class _SiginScreenState extends State<SiginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<AppUser?>(context);
-    print('Provided User sign in screen = ${userProvider?.email}');
-    return Scaffold(
-      backgroundColor: Colors.red,
-      body: Center(
-        child: Form(
-          // TODO: Form Validation
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
+    final width = MediaQuery.of(context).size.width;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            child: Form(
+              // TODO: Form Validation
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: width * 0.5,
+                    child: TextFormField(
+                      validator: validateEmail,
+                      cursorHeight: 0,
+                      cursorWidth: 0,
+                      textAlign: TextAlign.left,
+                      decoration: MyConstants.formTextFieldInputDecoration(
+                          hintText: 'البريد الإلكتروني'),
+                      controller: _emailController,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  SizedBox(
+                    width: width * 0.5,
+                    child: TextFormField(
+                      onTap: () {
+                        _passwordController.selection = TextSelection.collapsed(
+                            offset: _passwordController.text.length);
+                      },
+                      textAlign: TextAlign.left,
+                      cursorHeight: 0,
+                      cursorWidth: 0,
+                      obscureText: isObsecure,
+                      decoration: InputDecoration(
+                          prefixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isObsecure = !isObsecure;
+                                });
+                              },
+                              icon: !isObsecure
+                                  ? Icon(
+                                      Icons.visibility,
+                                      color: MyConstants.primaryColor,
+                                    )
+                                  : Icon(
+                                      Icons.visibility_off_outlined,
+                                      color: MyConstants.secondaryColor,
+                                    )),
+                          labelText: 'كلمة المرور',
+                          labelStyle: TextStyle(
+                            color: MyConstants.primaryColor,
+                          ),
+                          enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey)),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey.shade800),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade900))),
+                      controller: _passwordController,
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  ElevatedButton(
+                      onPressed: () async {
+                        // TODO: Form if Valid
+                        _authService.signInWithEmailAndPassword(
+                            context: context,
+                            email: _emailController.text.trim().toLowerCase(),
+                            password:
+                                _passwordController.text.trim().toLowerCase());
+                      },
+                      child: const Text('تسجيل الدخول')),
+                ],
               ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _passwordController,
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                  onPressed: () {
-                    final auth = FirebaseAuth.instance;
-
-                    print('current user email = ${auth.currentUser?.email}');
-
-                    // TODO: Form if Valid
-                    print(_emailController.text.trim().toLowerCase());
-                    print(_passwordController.text.trim().toLowerCase());
-                    _authService.signInWithEmailAndPassword(
-                        email: _emailController.text.trim().toLowerCase(),
-                        password:
-                            _passwordController.text.trim().toLowerCase());
-                  },
-                  child: const Text('تسجيل الدخول')),
-            ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  String? validateEmail(String? value) {
+    Pattern pattern =
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?)*$";
+    RegExp regex = RegExp(pattern as String);
+    if (!regex.hasMatch(value!)) {
+      return 'إيميل غير صالح';
+    } else {
+      return null;
+    }
   }
 }

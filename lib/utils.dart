@@ -43,11 +43,12 @@ class Utils {
     return result;
   }
 
-  static showLoading(BuildContext context) {
+  static showLoading(BuildContext context, String text) {
     return showDialog(
         context: context,
-        builder: (context) => const AlertDialog(
-              content: SizedBox(
+        builder: (context) => AlertDialog(
+              title: Text(text),
+              content: const SizedBox(
                 height: 50,
                 child: Center(child: CircularProgressIndicator()),
               ),

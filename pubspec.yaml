@@ -29,19 +29,24 @@ environment:
 dependencies:
   cloud_firestore: ^3.1.12
   cupertino_icons: ^1.0.2
+  dio: ^4.0.6
   excel: ^2.0.0-null-safety-3
   firebase_auth: ^3.3.14
   firebase_core: ^1.14.1
   flutter:
     sdk: flutter
+  flutterfire_ui: ^0.4.0+4
+  html: ^0.15.0
   intl: ^0.17.0
   open_file: ^3.2.1
   path_provider: ^2.0.9
   pdf: ^3.7.4
   printing: ^5.8.0
   provider: ^6.0.2
+  dropdown_search: ^4.0.1
   shared_preferences: ^2.0.13
   universal_html: ^2.0.8
+  
 
 dev_dependencies:
   flutter_lints: ^1.0.0
@@ -69,12 +74,7 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  #        style: italic
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
