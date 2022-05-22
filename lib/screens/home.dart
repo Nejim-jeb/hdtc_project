@@ -8,8 +8,9 @@ import 'package:hdtc_project/services/firestore_services.dart';
 import 'package:hdtc_project/widgets/interest_radiobutton_widget.dart';
 import 'package:hdtc_project/widgets/user_sidebar.dart';
 import '../services/pdf_services.dart';
-import '../widgets/fields_dropdown.dart';
 import '../widgets/admin_sidebar.dart';
+import '../widgets/searchable_fields_dropdown.dart';
+import '../widgets/searchable_uni_dropdown.dart';
 import '../widgets/uni_dropdown.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,9 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final AuthService _authService = AuthService();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   String? selectedRadio;
+  String? selectedCountry;
   String? selectedUni;
   String? selectedSpec;
   String? selectedlang;
@@ -40,8 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late FireStoreServices fireStoreServices;
   String? cost;
   String? currency;
-  final GlobalKey _formkey = GlobalKey<FormState>();
-  final GlobalKey _dropDownkey = GlobalKey();
   late Stream<QuerySnapshot> myStream;
   late Stream<UserData?> userStream;
 
@@ -69,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: StreamBuilder<UserData?>(
@@ -89,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
-
                       case ConnectionState.active:
                         if (snapshot.hasError) {
                           return const Center(
@@ -109,24 +106,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                   List.from(doc.get('specializations'));
                             }
                           }
-
                           if (_fieldList.isEmpty) {
                             Set<String> fieldsSet = {};
+                            Set<String> specSet = {};
                             for (var doc in documents) {
                               final fields =
-                                  List<String>.from(doc.get('fields'));
-                              fieldsSet.addAll(fields);
+                                  List.from(doc.get('specializations'));
+                              for (var element in fields) {
+                                specSet.add(element['spec']);
+                              }
+                              fieldsSet.addAll(specSet);
                             }
                             _fieldList.addAll(fieldsSet);
                           }
-                          if (selectedField != null && selectedlang == null) {
+                          if (selectedField != null &&
+                              selectedlang == null &&
+                              selectedCountry == null) {
                             for (var doc in documents) {
                               final fieldRes = List.of(doc['specializations']);
                               for (var item in fieldRes) {
                                 item['name'] = '${doc.get('name')}';
                               }
                               for (Map fieldData in fieldRes) {
-                                if (fieldData['field'] == selectedField) {
+                                if (fieldData['spec'] == selectedField) {
                                   passedFieldData.add(fieldData);
                                 }
                               }
@@ -167,7 +169,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   userData!.role == 'admin'
-                                      ? const AdminSideBar(currentIndex: 1)
+                                      ? const AdminSideBar(
+                                          currentIndex: 1,
+                                          firstRoute: null,
+                                        )
                                       : const UserSideBar(currentIndex: 1),
                                   Expanded(
                                     child: Column(
@@ -284,38 +289,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             selectedChoice: selectedRadio!,
                                           ),
                                         ),
-                                        // MyCheckBox(
-                                        //     myOnChanged: (value) {
-                                        //       setState(() {
-                                        //         if (selectedField != null) {
-                                        //           selectedField = null;
-                                        //         }
-                                        //         if (selectedlang != null) {
-                                        //           selectedlang = null;
-                                        //         }
-                                        //         if (selectedUni != null) {
-                                        //           selectedUni = null;
-                                        //         }
-                                        //         if (_uniList.isNotEmpty) {
-                                        //           selectedUni = null;
-                                        //           _uniList.clear();
-                                        //         }
-                                        //         myStream = FireStoreServices.getData(
-                                        //             collectionName:
-                                        //                 selectedRadio! ==
-                                        //                         'vocational schools'
-                                        //                     ? selectedRadio!
-                                        //                         .replaceFirst(
-                                        //                             ' ', '_')
-                                        //                     : selectedRadio!);
-                                        //         fromUni = value!;
-                                        //       });
-                                        //     },
-                                        //     selectedUni: selectedUni,
-                                        //     fromUni: fromUni,
-                                        //     selectedField: selectedField,
-                                        //     uniList: _uniList),
-
                                         fromUni == true
                                             ? Column(
                                                 children: [
@@ -323,7 +296,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     padding:
                                                         const EdgeInsets.all(
                                                             8.0),
-                                                    child: UnisDropDownButton(
+                                                    child:
+                                                        SearchableUniDropDown(
+                                                      hintText: "اختر الجامعة",
                                                       myOnChanged: (value) {
                                                         setState(() {
                                                           selectedUni = value;
@@ -355,38 +330,53 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         });
                                                       },
                                                     ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child:
+                                                        CountryDropDownButton(
+                                                      fromField: false,
+                                                      selectedField:
+                                                          selectedField,
+                                                      selectedUni: selectedUni,
+                                                      selectedCountry:
+                                                          selectedCountry,
+                                                      focusNode: myFocusNode,
+                                                      myOnChanged: (val) {
+                                                        setState(() {
+                                                          selectedCountry = val;
+                                                        });
+                                                      },
+                                                    ),
                                                   )
                                                 ],
                                               )
                                             : Column(
                                                 children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: FieldsDropDownButton(
-                                                        myOnChanged: (value) {
-                                                          if (passedFieldData
-                                                              .isNotEmpty) {
-                                                            passedFieldData
-                                                                .clear();
-                                                          }
-                                                          setState(() {
-                                                            selectedField =
-                                                                value;
-                                                            selectedlang = null;
+                                                  SearchableFieldsDropDown(
+                                                      hintText: 'اختر الفرع',
+                                                      myOnChanged: (value) {
+                                                        if (passedFieldData
+                                                            .isNotEmpty) {
+                                                          passedFieldData
+                                                              .clear();
+                                                        }
+                                                        setState(() {
+                                                          selectedField = value;
+                                                          selectedlang = null;
 
-                                                            // FocusScope.of(context)
-                                                            //     .requestFocus(myFocusNode);
-                                                          });
-                                                        },
-                                                        focusNode: myFocusNode,
-                                                        fieldsList: _fieldList,
-                                                        passedFieldData:
-                                                            passedFieldData,
-                                                        selectedField:
-                                                            selectedField),
-                                                  ),
+                                                          // FocusScope.of(context)
+                                                          //     .requestFocus(myFocusNode);
+                                                        });
+                                                      },
+                                                      focusNode: myFocusNode,
+                                                      fieldsList: _fieldList,
+                                                      passedFieldData:
+                                                          passedFieldData,
+                                                      selectedField:
+                                                          selectedField),
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.all(
@@ -405,13 +395,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         });
                                                       },
                                                     ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child:
+                                                        CountryDropDownButton(
+                                                      fromField: true,
+                                                      selectedField:
+                                                          selectedField,
+                                                      selectedUni: selectedUni,
+                                                      selectedCountry:
+                                                          selectedCountry,
+                                                      focusNode: myFocusNode,
+                                                      myOnChanged: (val) {
+                                                        setState(() {
+                                                          selectedCountry = val;
+                                                        });
+                                                      },
+                                                    ),
                                                   )
                                                 ],
                                               ),
                                         const SizedBox(
                                           height: 20,
                                         ),
-
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: ElevatedButton(
@@ -437,12 +446,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                               onPressed: fromUni == true
                                                   ? () async {
-                                                      //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
                                                       try {
                                                         await PdfAPI.generateUniPdf(
+                                                            country:
+                                                                selectedCountry ==
+                                                                        'all'
+                                                                    ? null
+                                                                    : selectedCountry,
                                                             branch:
                                                                 selectedRadio!,
-                                                            lang: selectedlang,
+                                                            lang: selectedlang ==
+                                                                    'all'
+                                                                ? null
+                                                                : selectedlang,
                                                             uniName:
                                                                 selectedUni!,
                                                             uniData:
@@ -450,6 +466,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         setState(() {
                                                           selectedUni = null;
                                                           selectedlang = null;
+                                                          selectedCountry =
+                                                              null;
                                                         });
                                                       } catch (e) {
                                                         showDialog(
@@ -465,15 +483,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   : (() async {
                                                       try {
                                                         await PdfAPI.generateFieldPdf(
+                                                            country:
+                                                                selectedCountry ==
+                                                                        'all'
+                                                                    ? null
+                                                                    : selectedCountry,
                                                             branch:
                                                                 selectedRadio!,
-                                                            lang: selectedlang,
+                                                            lang: selectedlang ==
+                                                                    'all'
+                                                                ? null
+                                                                : selectedlang,
                                                             fieldData:
                                                                 passedFieldData);
                                                         setState(() {
                                                           passedFieldData = [];
                                                           selectedField = null;
                                                           selectedlang = null;
+                                                          selectedCountry =
+                                                              null;
                                                         });
                                                       } catch (e) {
                                                         showDialog(
@@ -485,7 +513,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                           e.toString()),
                                                                     ));
                                                       }
-                                                      //TODO: FormValidation selectedUni Cannot be null must check before calling generateUniPDF
                                                     }),
                                               child: Padding(
                                                 padding:

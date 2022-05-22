@@ -7,7 +7,6 @@ class MyBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
         onPressed: () {
-          print('pressed back');
           Navigator.pop(context);
         },
         icon: const Icon(

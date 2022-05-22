@@ -21,7 +21,7 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
       child: Scaffold(
           body: Row(
         children: [
-          const AdminSideBar(currentIndex: 2),
+          const AdminSideBar(currentIndex: 2, firstRoute: true),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,

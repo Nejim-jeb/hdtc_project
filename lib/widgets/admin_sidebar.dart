@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/screens/home.dart';
 import 'package:hdtc_project/screens/sign_up.dart';
 import 'package:hdtc_project/screens/view_universities.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 
+import 'change_password_dialog.dart';
+
 class AdminSideBar extends StatefulWidget {
   final int currentIndex;
-  const AdminSideBar({Key? key, required this.currentIndex}) : super(key: key);
+  final bool? firstRoute;
+  const AdminSideBar(
+      {Key? key, required this.currentIndex, required this.firstRoute})
+      : super(key: key);
 
   @override
   State<AdminSideBar> createState() => _AdminSideBarState();
@@ -34,8 +40,9 @@ class _AdminSideBarState extends State<AdminSideBar> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    //  Color(0x61000000)
 
+    final height = MediaQuery.of(context).size.height;
     return isDesktop(context)
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +87,8 @@ class _AdminSideBarState extends State<AdminSideBar> {
                       child: SizedBox(
                         width: 200,
                         child: TextButton(
-                          onPressed: widget.currentIndex == 2
+                          onPressed: widget.currentIndex == 2 &&
+                                  widget.firstRoute == true
                               ? null
                               : () {
                                   Navigator.push(
@@ -96,28 +104,17 @@ class _AdminSideBarState extends State<AdminSideBar> {
                           child: Text(
                             'عرض الجامعات',
                             style: TextStyle(
-                              fontWeight: widget.currentIndex == 2
-                                  ? FontWeight.bold
-                                  : null,
-                              fontSize: 20,
-                            ),
+                                fontWeight: widget.currentIndex == 2
+                                    ? FontWeight.bold
+                                    : null,
+                                fontSize: 20,
+                                color: widget.firstRoute != null
+                                    ? const Color(0x61000000)
+                                    : MyConstants.primaryColor),
                           ),
                         ),
                       ),
                     ),
-                    // const Padding(
-                    //   padding: EdgeInsets.all(8.0),
-                    //   child: SizedBox(
-                    //     width: 200,
-                    //     child: TextButton(
-                    //       onPressed: null,
-                    //       child: Text(
-                    //         'عرض المستخدمين',
-                    //         style: TextStyle(fontSize: 20, ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
@@ -152,8 +149,30 @@ class _AdminSideBarState extends State<AdminSideBar> {
                       child: SizedBox(
                         width: 200,
                         child: TextButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const ChangePasswordDialog();
+                                });
+                          },
+                          child: Center(
+                            child: Text(
+                              'تغيير كلمة المرور',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: MyConstants.primaryColor),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 200,
+                        child: TextButton(
                           onPressed: () async {
-                            print('sign our pressed');
                             await _authService.signOut(context);
 
                             setState(() {});

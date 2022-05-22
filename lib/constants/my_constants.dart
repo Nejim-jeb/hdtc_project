@@ -12,14 +12,20 @@ class MyConstants {
   static Color primaryColor = const Color(0xffc2b369);
   static Color appGrey = const Color(0xff8b8b8b);
   static List<String> langList = [
+    'all',
     'english',
     'arabic',
     'turkish',
   ];
+  static List<String> countriesList = ['all', 'turkey', 'cyprus'];
 
-  static InputDecoration formTextFieldInputDecoration(
-      {required String hintText}) {
+  static InputDecoration formTextFieldInputDecoration({
+    required String hintText,
+    bool? iconIsVisible,
+    IconData? suffixIcon,
+  }) {
     return InputDecoration(
+        errorMaxLines: 2,
         labelText: hintText,
         labelStyle: TextStyle(
           color: MyConstants.primaryColor,
@@ -52,5 +58,22 @@ class MyConstants {
         ),
         focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey.shade900)));
+  }
+
+  static Future myAsyncShowDialog(
+      {required BuildContext context,
+      required String title,
+      required VoidCallback onPressed}) async {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text(title),
+              actions: [
+                OutlinedButton(
+                    onPressed: (() => Navigator.pop(context)),
+                    child: const Text('إلغاء الأمر')),
+                OutlinedButton(onPressed: onPressed, child: const Text('حذف')),
+              ],
+            ));
   }
 }

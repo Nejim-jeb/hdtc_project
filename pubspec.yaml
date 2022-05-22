@@ -43,6 +43,7 @@ dependencies:
   pdf: ^3.7.4
   printing: ^5.8.0
   provider: ^6.0.2
+  dropdown_search: ^4.0.1
   shared_preferences: ^2.0.13
   universal_html: ^2.0.8
   

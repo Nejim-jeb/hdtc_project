@@ -54,7 +54,7 @@ class _BranchUniversitiesScreenState extends State<BranchUniversitiesScreen> {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const AdminSideBar(currentIndex: 2),
+                        const AdminSideBar(currentIndex: 2, firstRoute: false),
                         UniversitiesScreenBody(
                             data: universities, branch: widget.branch),
                         const MyBackButton(),
@@ -63,10 +63,8 @@ class _BranchUniversitiesScreenState extends State<BranchUniversitiesScreen> {
                   }
 
                 default:
-                  return Container(
-                    child: const Center(
-                      child: Text('Default Case'),
-                    ),
+                  return const Center(
+                    child: Text('Default Case'),
                   );
               }
             }),

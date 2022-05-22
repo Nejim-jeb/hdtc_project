@@ -1,9 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/constants/my_constants.dart';
-import 'package:hdtc_project/models/user.dart';
 import 'package:hdtc_project/services/auth_services.dart';
-import 'package:provider/provider.dart';
 
 class SiginScreen extends StatefulWidget {
   const SiginScreen({Key? key}) : super(key: key);
@@ -13,6 +10,7 @@ class SiginScreen extends StatefulWidget {
 }
 
 class _SiginScreenState extends State<SiginScreen> {
+  bool isObsecure = true;
   late TextEditingController _passwordController;
   late TextEditingController _emailController;
   final AuthService _authService = AuthService();
@@ -37,7 +35,6 @@ class _SiginScreenState extends State<SiginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<AppUser?>(context);
     final width = MediaQuery.of(context).size.width;
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -55,6 +52,7 @@ class _SiginScreenState extends State<SiginScreen> {
                   SizedBox(
                     width: width * 0.5,
                     child: TextFormField(
+                      validator: validateEmail,
                       cursorHeight: 0,
                       cursorWidth: 0,
                       textAlign: TextAlign.left,
@@ -74,20 +72,45 @@ class _SiginScreenState extends State<SiginScreen> {
                       textAlign: TextAlign.left,
                       cursorHeight: 0,
                       cursorWidth: 0,
-                      obscureText: true,
-                      decoration: MyConstants.formTextFieldInputDecoration(
-                          hintText: 'كلمة المرور'),
+                      obscureText: isObsecure,
+                      decoration: InputDecoration(
+                          prefixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isObsecure = !isObsecure;
+                                });
+                              },
+                              icon: !isObsecure
+                                  ? Icon(
+                                      Icons.visibility,
+                                      color: MyConstants.primaryColor,
+                                    )
+                                  : Icon(
+                                      Icons.visibility_off_outlined,
+                                      color: MyConstants.secondaryColor,
+                                    )),
+                          labelText: 'كلمة المرور',
+                          labelStyle: TextStyle(
+                            color: MyConstants.primaryColor,
+                          ),
+                          enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey)),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey.shade800),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade900))),
                       controller: _passwordController,
                     ),
                   ),
                   const SizedBox(height: 25),
                   ElevatedButton(
-                      onPressed: () {
-                        final auth = FirebaseAuth.instance;
-
+                      onPressed: () async {
                         // TODO: Form if Valid
-
                         _authService.signInWithEmailAndPassword(
+                            context: context,
                             email: _emailController.text.trim().toLowerCase(),
                             password:
                                 _passwordController.text.trim().toLowerCase());
@@ -100,5 +123,18 @@ class _SiginScreenState extends State<SiginScreen> {
         ),
       ),
     );
+  }
+
+  String? validateEmail(String? value) {
+    Pattern pattern =
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?)*$";
+    RegExp regex = RegExp(pattern as String);
+    if (!regex.hasMatch(value!)) {
+      return 'إيميل غير صالح';
+    } else {
+      return null;
+    }
   }
 }

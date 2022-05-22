@@ -12,21 +12,14 @@ import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart'
     show LicenseEntryWithLineBreaks, LicenseRegistry, kIsWeb;
 
-// Todo: € Problem in the data in FireStore (Training cost is ??€)
-// Todo: Add Website Icon
 // Todo: Manage Firebase Security Rules
 // Todo: Disable Access by changing URL without Being Logged in
-// Todo: show dialogs on signup etc...
-// Todo: YENI YUZYIL ALPHABET PDF FIX
-// Todo: Try tableRow instead of Table.oftextarray
 // Todo: InputFormatter to auto add $ to the end of the text
 // Todo: Pressing outside dropdown should unfocus
 // Todo: AUTO FILL LOGIN TEXTFIELDS
 // Todo: MATERIAL APP BUILDER => Directionality to all app and set custom navigator or router to App
 // Todo: LOAD LOGO FROM FIRESTORGE PUBLIC NOW TRY TO MAKE PRIVATE WITH RULES
 // FIX: Unfocus After field selection + signout (focus node used after dispose error)
-//Todo: Add Form key with validation and clear form after submit and create PDF
-// Todo: WHEN FILTER ON LANGUAGE CHECK 2 LANG ENGLISH/TURKISH - ENGLISH
 
 void main() async {
   LicenseRegistry.addLicense(() async* {

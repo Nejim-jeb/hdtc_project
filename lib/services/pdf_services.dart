@@ -24,7 +24,7 @@ class PdfAPI {
   static const headerColor = '#ffd961';
   static const columnColor = '#ffe49a';
   static const footerText =
-      'Molla Gürani Mh. Millet Cd.Fildişi İş Merkezi No:90 kat1 işyeri No: 109/26, ISTANBUL-TURKEY, Fatih Fındıkzade';
+      'MOLLA GÜRANI MAH.Lütufpaşa SK. Hacıbey işhanı NO:54 K:5 Daire no: 39';
 
   static Widget buildHeader(
           {required String phoneNumber, required Uint8List imageJpj}) =>
@@ -44,15 +44,13 @@ class PdfAPI {
   static Future generateUniPdf(
       {required String uniName,
       required String branch,
+      String? country,
       required List<Map> uniData,
       String? lang}) async {
-    print('Passed lang = = = = = = = $lang');
-
     final font = await PdfGoogleFonts.sourceSans3SemiBold();
-
     List<List<String>> _filteredList2 = [];
     List<List<String>> _allData = [];
-    if (lang != null) {
+    if (lang != null && country == null) {
       for (var item in uniData) {
         if (item['lang'].toString().contains(lang) ||
             item['lang']
@@ -71,8 +69,42 @@ class PdfAPI {
           _filteredList2.add(rowData);
         }
       }
-      print(
-          'filtered list length inside function = = = ${_filteredList2.length} ${_filteredList2.runtimeType}');
+    } else if (lang == null && country != null) {
+      for (var item in uniData) {
+        if (item['location'].toString().contains(country) ||
+            item['location']
+                .toString()
+                .contains(Utils.capitalizeFirstOfEachWord(country))) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(uniName));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else if (lang != null && country != null) {
+      for (var item in uniData) {
+        if (item['location'].toString().contains(country) &&
+            item['lang'].toString().contains(lang)) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(uniName));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
     } else {
       for (var item in uniData) {
         List<String> rowData = [];
@@ -112,7 +144,8 @@ class PdfAPI {
       MultiPage(
         footer: (context) => Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: Text(footerText, style: TextStyle(font: font))),
+            child:
+                Center(child: Text(footerText, style: TextStyle(font: font)))),
         pageTheme: pageTheme,
         header: (context) =>
             buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
@@ -132,28 +165,42 @@ class PdfAPI {
             Table(
               border: TableBorder.all(width: 1),
               defaultVerticalAlignment: TableCellVerticalAlignment.full,
-              children: lang == null
-                  ? [
-                      headerRow,
-                      for (int i = 0; i < uniData.length; i++)
-                        buildRow(
-                            data: _allData,
-                            index: i,
-                            uniName: Utils.capitalizeFirstOfEachWord(uniName))
-                    ]
-                  : [
-                      headerRow,
-                      for (int i = 0; i < _filteredList2.length; i++)
-                        buildFilteredRow(
-                          uniName: Utils.capitalizeFirstOfEachWord(uniName),
-                          data: _filteredList2,
-                          index: i,
-                          lang: lang,
-                        )
-                    ],
+              children: [
+                headerRow,
+                if (lang == null && country == null)
+                  for (int i = 0; i < uniData.length; i++)
+                    buildRow(
+                        data: _allData,
+                        index: i,
+                        uniName: Utils.capitalizeFirstOfEachWord(uniName)),
+                if (lang != null && country == null)
+                  for (int i = 0; i < _filteredList2.length; i++)
+                    buildFilteredRow(
+                      uniName: Utils.capitalizeFirstOfEachWord(uniName),
+                      data: _filteredList2,
+                      index: i,
+                      lang: lang,
+                    ),
+                if (lang == null && country != null)
+                  for (int i = 0; i < _filteredList2.length; i++)
+                    buildFilteredRow(
+                      uniName: Utils.capitalizeFirstOfEachWord(uniName),
+                      data: _filteredList2,
+                      index: i,
+                      lang: lang,
+                    ),
+                if (lang != null && country != null)
+                  for (int i = 0; i < _filteredList2.length; i++)
+                    buildFilteredRow(
+                      uniName: Utils.capitalizeFirstOfEachWord(uniName),
+                      data: _filteredList2,
+                      index: i,
+                      lang: lang,
+                    )
+              ],
               columnWidths: {
                 0: const IntrinsicColumnWidth(flex: 1.5),
-                2: const IntrinsicColumnWidth(flex: 0.9),
+                2: const IntrinsicColumnWidth(flex: 1.0),
                 3: const IntrinsicColumnWidth(flex: 1.3),
                 4: const IntrinsicColumnWidth(flex: 1.9),
                 5: const IntrinsicColumnWidth(flex: 1.8),
@@ -174,14 +221,13 @@ class PdfAPI {
 
   static Future generateFieldPdf(
       {required List<Map> fieldData,
+      String? country,
       String? lang,
       required String branch}) async {
     final font = await PdfGoogleFonts.sourceSans3SemiBold();
-
-    final test = fieldData;
     List<List<String>> _filteredList2 = [];
     List<List<String>> _allData = [];
-    if (lang != null) {
+    if (lang != null && country == null) {
       for (var item in fieldData) {
         if (item['lang'].toString().contains(lang) ||
             item['lang']
@@ -200,13 +246,43 @@ class PdfAPI {
           _filteredList2.add(rowData);
         }
       }
-      print(
-          'Filtered Data TOSET LENGTH = = = ${_filteredList2.toSet().length}');
-
-      print(
-          'All data list length inside function = = = ${_filteredList2.length} ${_filteredList2.runtimeType}');
-      print(
-          'filtered list length inside function = = = ${fieldData.length} ${fieldData.runtimeType}');
+    } else if (country != null && lang == null) {
+      for (var item in fieldData) {
+        if (item['location'].toString().contains(country) ||
+            item['location']
+                .toString()
+                .contains(Utils.capitalizeFirstOfEachWord(country))) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['name']));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else if (country != null && lang != null) {
+      for (var item in fieldData) {
+        if (item['location'].toString().contains(country) &&
+            item['lang'].toString().contains(lang)) {
+          print('------ WENT INSIDE IF STATEMENT ---------');
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['name']));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
     } else {
       for (var item in fieldData) {
         List<String> rowData = [];
@@ -248,7 +324,8 @@ class PdfAPI {
         footer: (context) {
           return Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text(footerText, style: TextStyle(font: font)));
+              child: Center(
+                  child: Text(footerText, style: TextStyle(font: font))));
         },
         pageTheme: pageTheme,
         header: (context) =>
@@ -267,40 +344,74 @@ class PdfAPI {
                   .toList());
           return [
             Table(
-              border: TableBorder.all(width: 1),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: {
-                0: const IntrinsicColumnWidth(flex: 1.5),
-                2: const IntrinsicColumnWidth(flex: 0.9),
-                3: const IntrinsicColumnWidth(flex: 1.3),
-                4: const IntrinsicColumnWidth(flex: 1.9),
-                5: const IntrinsicColumnWidth(flex: 1.8),
-                6: const IntrinsicColumnWidth(flex: 1.5),
-              },
-              children: lang == null
-                  ? [
-                      headerRow,
-                      for (int i = 0; i < _allData.length; i++)
-                        buildFieldRow(
-                          headers: headers,
-                          uniName: Utils.capitalizeFirstOfEachWord(
-                              fieldData[i]['name']),
+                border: TableBorder.all(width: 1),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                columnWidths: {
+                  0: const IntrinsicColumnWidth(flex: 1.5),
+                  2: const IntrinsicColumnWidth(flex: 1.0),
+                  3: const IntrinsicColumnWidth(flex: 1.3),
+                  4: const IntrinsicColumnWidth(flex: 1.9),
+                  5: const IntrinsicColumnWidth(flex: 1.8),
+                  6: const IntrinsicColumnWidth(flex: 1.5),
+                },
+                children: [
+                  headerRow,
+                  if (lang == null && country == null)
+                    for (int i = 0; i < _allData.length; i++)
+                      buildRow(
                           data: _allData,
                           index: i,
-                        )
-                    ]
-                  : [
-                      headerRow,
-                      for (int i = 0; i < _filteredList2.length; i++)
-                        buildFilteredFieldRow(
-                          uniName: Utils.capitalizeFirstOfEachWord(
-                              _filteredList2[i][0]),
-                          data: _filteredList2,
-                          index: i,
-                          lang: lang,
-                        )
-                    ],
-            )
+                          uniName: fieldData[i]['name']),
+                  if (lang != null && country == null)
+                    for (int i = 0; i < _filteredList2.length; i++)
+                      buildFilteredFieldRow(
+                        uniName: fieldData[i]['name'],
+                        data: _filteredList2,
+                        index: i,
+                        lang: lang,
+                      ),
+                  if (lang == null && country != null)
+                    for (int i = 0; i < _filteredList2.length; i++)
+                      buildFilteredFieldRow(
+                        uniName: fieldData[i]['name'],
+                        data: _filteredList2,
+                        index: i,
+                        lang: lang,
+                      ),
+                  if (lang != null && country != null)
+                    for (int i = 0; i < _filteredList2.length; i++)
+                      buildFilteredFieldRow(
+                        uniName: fieldData[i]['name'],
+                        data: _filteredList2,
+                        index: i,
+                        lang: lang,
+                      )
+                ]
+
+                //  lang == null
+                //     ? [
+                //         headerRow,
+                //         for (int i = 0; i < _allData.length; i++)
+                //           buildFieldRow(
+                //             headers: headers,
+                //             uniName: Utils.capitalizeFirstOfEachWord(
+                //                 fieldData[i]['name']),
+                //             data: _allData,
+                //             index: i,
+                //           )
+                //       ]
+                //     : [
+                //         headerRow,
+                //         for (int i = 0; i < _filteredList2.length; i++)
+                //           buildFilteredFieldRow(
+                //             uniName: Utils.capitalizeFirstOfEachWord(
+                //                 _filteredList2[i][0]),
+                //             data: _filteredList2,
+                //             index: i,
+                //             lang: lang,
+                //           )
+                //       ],
+                )
           ];
         },
       ),
@@ -310,11 +421,11 @@ class PdfAPI {
         ? saveAndLaunchFileWeb(
             bytes,
             Utils.capitalizeFirstOfEachWord(
-                '$branch ${fieldData[0]['field']}.pdf'))
+                '$branch ${fieldData[0]['spec']}.pdf'))
         : saveAndLaunchFileWeb(
             bytes,
             Utils.capitalizeFirstOfEachWord(
-                '$branch ${fieldData[0]['field']} $lang.pdf'));
+                '$branch ${fieldData[0]['spec']} $lang.pdf'));
     _filteredList2 = [];
   }
 
@@ -371,7 +482,7 @@ buildRow(
 buildFilteredRow(
     {required List<List<String>> data,
     required String uniName,
-    required String lang,
+    String? lang,
     required int index}) {
   try {
     return TableRow(
@@ -433,7 +544,7 @@ buildFieldRow({
 buildFilteredFieldRow(
     {required List<List<String>> data,
     required String uniName,
-    required String lang,
+    String? lang,
     required int index}) {
   try {
     return TableRow(

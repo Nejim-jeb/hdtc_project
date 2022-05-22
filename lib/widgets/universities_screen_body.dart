@@ -49,23 +49,45 @@ class _UniversitiesScreenBodyState extends State<UniversitiesScreenBody> {
                       height: 15,
                     ),
                     itemBuilder: (context, index) {
-                      return TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UniversityScreen(
-                                        branch: widget.branch,
-                                        uniName:
-                                            widget.data[index].get('name'))));
-                          },
-                          child: FittedBox(
-                            child: Text(
-                              Utils.capitalizeFirstOfEachWord(
-                                  widget.data[index].get('name')),
-                              style: const TextStyle(fontSize: 25),
-                            ),
-                          ));
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => UniversityScreen(
+                                            branch: widget.branch,
+                                            uniName: widget.data[index]
+                                                .get('name'))));
+                              },
+                              child: FittedBox(
+                                child: Text(
+                                  Utils.capitalizeFirstOfEachWord(
+                                      widget.data[index].get('name')),
+                                  style: const TextStyle(fontSize: 25),
+                                ),
+                              )),
+                          IconButton(
+                              onPressed: () async {
+                                await MyConstants.myAsyncShowDialog(
+                                    context: context,
+                                    title: 'هل أنت متأكد من حذف الجامعة',
+                                    onPressed: () async {
+                                      await FireStoreServices.deleteUni(
+                                          collectionPath: widget.branch,
+                                          uniName:
+                                              widget.data[index].get('name'));
+                                      Navigator.pop(context);
+                                    });
+                              },
+                              icon: Icon(
+                                Icons.delete_forever_outlined,
+                                color: MyConstants.primaryColor,
+                              ))
+                        ],
+                      );
                     },
                   ),
                 ),
@@ -81,43 +103,56 @@ class _UniversitiesScreenBodyState extends State<UniversitiesScreenBody> {
                         fixedSize: const Size(70, 70),
                         shape: const CircleBorder()),
                     onPressed: () async {
+                      final _formkey = GlobalKey<FormState>();
                       showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                                content: Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: TextFormField(
-                                    cursorHeight: 0,
-                                    cursorWidth: 0,
-                                    decoration: MyConstants
-                                        .formTextFieldInputDecoration(
-                                            hintText: 'اسم الجامعة'),
-                                    controller: newUniController,
+                          builder: (context) => Form(
+                                key: _formkey,
+                                child: AlertDialog(
+                                  content: Directionality(
+                                    textDirection: TextDirection.rtl,
+                                    child: TextFormField(
+                                      validator: (value) =>
+                                          value == '' || value == null
+                                              ? 'الرجاء تعبئة الحقل'
+                                              : null,
+                                      cursorHeight: 0,
+                                      cursorWidth: 0,
+                                      decoration: MyConstants
+                                          .formTextFieldInputDecoration(
+                                              hintText: 'اسم الجامعة'),
+                                      controller: newUniController,
+                                    ),
                                   ),
+                                  actions: [
+                                    OutlinedButton(
+                                        onPressed: () async {
+                                          if (_formkey.currentState!
+                                              .validate()) {
+                                            final uniData = University(
+                                                fields: [],
+                                                name: newUniController.text
+                                                    .trim()
+                                                    .toLowerCase(),
+                                                specs: []);
+                                            await FireStoreServices
+                                                .addUniversity2(
+                                                    collectionPath:
+                                                        widget.branch,
+                                                    uniData: uniData);
+                                            newUniController.clear();
+                                            Navigator.pop(context);
+                                          }
+                                        },
+                                        child: const Text('إضافة')),
+                                    OutlinedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('إلغاء الأمر')),
+                                  ],
                                 ),
-                                actions: [
-                                  OutlinedButton(
-                                      onPressed: () async {
-                                        final uniData = University(
-                                            fields: [],
-                                            name: newUniController.text
-                                                .trim()
-                                                .toLowerCase(),
-                                            specs: []);
-                                        await FireStoreServices.addUniversity2(
-                                            collectionPath: widget.branch,
-                                            uniData: uniData);
-                                        newUniController.clear();
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('إضافة')),
-                                  OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('إلغاء الأمر')),
-                                ],
-                              )); //TODO: ADD FIELD TO CURRENT UNI
+                              ));
                     },
                     child: const Text(
                       'إضافة جامعة',

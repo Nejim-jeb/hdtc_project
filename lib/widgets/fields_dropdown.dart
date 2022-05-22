@@ -27,11 +27,11 @@ class _FieldsDropDownButtonState extends State<FieldsDropDownButton> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return SizedBox(
       //Fix
       width: 360,
       child: DropdownButtonFormField<String>(
+          isExpanded: true, //Step 1
           iconDisabledColor: Colors.grey,
           iconEnabledColor: MyConstants.secondaryColor,
           //  key: _dropDownkey,

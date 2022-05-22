@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/services/auth_services.dart';
 
+import '../constants/my_constants.dart';
+import 'change_password_dialog.dart';
+
 class UserSideBar extends StatefulWidget {
   final int currentIndex;
   const UserSideBar({Key? key, required this.currentIndex}) : super(key: key);
@@ -18,7 +21,6 @@ class _UserSideBarState extends State<UserSideBar> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-
     return isDesktop(context)
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,13 +37,33 @@ class _UserSideBarState extends State<UserSideBar> {
                       child: SizedBox(
                         width: 200,
                         child: TextButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const ChangePasswordDialog();
+                                });
+                          },
+                          child: Text(
+                            'تغيير كلمة المرور',
+                            style: TextStyle(
+                                fontSize: 20, color: MyConstants.primaryColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 200,
+                        child: TextButton(
                           onPressed: () async {
-                            print('sign our pressed');
                             await _authService.signOut(context);
                           },
-                          child: const Text(
+                          child: Text(
                             'تسجيل خروج',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
+                            style: TextStyle(
+                                fontSize: 20, color: MyConstants.primaryColor),
                           ),
                         ),
                       ),

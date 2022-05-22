@@ -18,10 +18,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           DropdownMenuItem(value: role, child: Text(Utils.capitalize(role))))
       .toList();
   late TextEditingController _passwordController;
-  late TextEditingController _roleController;
   late TextEditingController _emailController;
   late TextEditingController _userNameController;
   String? selectedRole;
+  bool isObsecure = true;
   final AuthService _authService = AuthService();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -31,7 +31,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _userNameController = TextEditingController();
-    _roleController = TextEditingController();
   }
 
   @override
@@ -51,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           key: _formKey,
           child: Row(
             children: [
-              const AdminSideBar(currentIndex: 4),
+              const AdminSideBar(currentIndex: 4, firstRoute: null),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -74,9 +73,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: TextFormField(
                         cursorHeight: 0,
                         cursorWidth: 0,
-                        decoration: MyConstants.formTextFieldInputDecoration(
-                            hintText: 'كلمة المرور'),
-                        obscureText: true,
+                        obscureText: isObsecure,
+                        decoration: InputDecoration(
+                            hintMaxLines: 2,
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isObsecure = !isObsecure;
+                                  });
+                                },
+                                icon: !isObsecure
+                                    ? Icon(
+                                        Icons.visibility,
+                                        color: MyConstants.primaryColor,
+                                      )
+                                    : Icon(
+                                        Icons.visibility_off_outlined,
+                                        color: MyConstants.secondaryColor,
+                                      )),
+                            labelText: 'كلمة المرور',
+                            labelStyle: TextStyle(
+                              color: MyConstants.primaryColor,
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey)),
+                            border: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade800),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade900))),
+
+                        // decoration: MyConstants.formTextFieldInputDecoration(
+                        //     hintText: 'كلمة المرور'),
+
                         controller: _passwordController,
                         validator: (val) =>
                             val!.length > 5 ? null : 'كلمة المرور غير صالحة',

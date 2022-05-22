@@ -28,9 +28,6 @@ class _UnisDropDownButtonState extends State<UnisDropDownButton> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-
     return SizedBox(
       //Fix
       width: 360,
@@ -88,9 +85,6 @@ class _LangDropDownButtonState extends State<LangDropDownButton> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-
     return Container(
       padding: const EdgeInsets.only(top: 8),
       //Fix
@@ -129,6 +123,66 @@ class _LangDropDownButtonState extends State<LangDropDownButton> {
           //   });
           // },
           ),
+    );
+  }
+}
+
+class CountryDropDownButton extends StatefulWidget {
+  CountryDropDownButton(
+      {Key? key,
+      required this.myOnChanged,
+      required this.focusNode,
+      required this.selectedField,
+      required this.selectedUni,
+      required this.fromField,
+      this.selectedCountry})
+      : super(key: key);
+  String? selectedCountry;
+  final bool fromField;
+  final String? selectedField;
+  final String? selectedUni;
+  FocusNode? focusNode;
+  ValueChanged myOnChanged;
+  @override
+  State<CountryDropDownButton> createState() => _CountryDropDownButtonState();
+}
+
+class _CountryDropDownButtonState extends State<CountryDropDownButton> {
+  bool isDesktop(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 600;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 8),
+      //Fix
+      width: 360,
+      child: DropdownButtonFormField<dynamic>(
+          disabledHint: widget.fromField == true
+              ? const Text('اختر الفرع أولاً')
+              : const Text('اختر الجامعة أولاً'),
+          //  key: _dropDownkey,
+          decoration: MyConstants.formDropDownInputDecoration(
+              hintText: 'اختر البلد',
+              isEnabled: widget.selectedUni != null
+                  ? true
+                  : false || widget.selectedField != null
+                      ? true
+                      : false),
+          //  hint: const Text('Select University'),
+          value: widget.selectedCountry,
+          items: MyConstants.countriesList
+              .map((e) => DropdownMenuItem(
+                  value: e, child: Text((Utils.capitalizeFirstOfEachWord(e)))))
+              .toList()
+            ..sort((a, b) {
+              return a.value!.toLowerCase().compareTo(b.value!.toLowerCase());
+            }),
+          onChanged: widget.selectedField == null && widget.fromField == true ||
+                  widget.selectedUni == null && widget.fromField == false
+              ? null
+              : widget.myOnChanged),
     );
   }
 }

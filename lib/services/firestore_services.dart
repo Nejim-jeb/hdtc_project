@@ -44,7 +44,6 @@ class FireStoreServices {
           ...[field]
         ]),
       });
-      print('done');
     } catch (e) {
       print('Catched Error Message inside add Uni Method = ${e.toString()}');
     }
@@ -59,7 +58,6 @@ class FireStoreServices {
       doc.set({
         'specializations': FieldValue.arrayUnion([...spec]),
       }, SetOptions(merge: true));
-      print('done');
     } catch (e) {
       print('Catched Error Message inside add Uni Method = ${e.toString()}');
     }
@@ -74,9 +72,50 @@ class FireStoreServices {
       doc.set({
         'specializations': FieldValue.arrayRemove([...spec]),
       }, SetOptions(merge: true));
-      print('done');
     } catch (e) {
       print('Catched Error Message inside add Uni Method = ${e.toString()}');
+    }
+  }
+
+  static Future deleteUni(
+      {required String collectionPath, required String uniName}) async {
+    try {
+      await firebaseFirestore.collection(collectionPath).doc(uniName).delete();
+    } catch (e) {
+      print('Cached Error Message in Delete Uni = ${e.toString()}');
+    }
+  }
+
+  static Future deleteField(
+      {required String collectionPath,
+      required String uniName,
+      required String fieldValue}) async {
+    try {
+      await firebaseFirestore.collection(collectionPath).doc(uniName).update(
+        {
+          'fields': FieldValue.arrayRemove([fieldValue]),
+        },
+      );
+      final DocumentSnapshot doc =
+          await firebaseFirestore.collection(collectionPath).doc(uniName).get();
+      final allItems = List.of(doc['specializations']);
+      final itemsToDelete = List.of(doc['specializations'])
+          .where((element) => element['field'] == fieldValue);
+      for (var element in itemsToDelete) {
+        Map<String, dynamic> mapTodelete = {
+          'field': element['field'],
+          'spec': element['spec'],
+          'fees': element['fees'],
+          'note': element['note'],
+          'lang': element['lang'],
+          'location': element['location'],
+        };
+        firebaseFirestore.collection(collectionPath).doc(uniName).set({
+          'specializations': FieldValue.arrayRemove([mapTodelete])
+        }, SetOptions(merge: true));
+      }
+    } catch (e) {
+      print('Cached Error Message in Delete Field = ${e.toString()}');
     }
   }
 
@@ -116,7 +155,6 @@ class FireStoreServices {
       required String collectionName}) async {
     final rowsData = await Utils.readExcelFileData(
         excelFilePath: fileName, sheetName: sheetName);
-    print('========= ${rowsData.length} ');
     try {
       rowsData.removeAt(0);
 

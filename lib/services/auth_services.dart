@@ -57,7 +57,9 @@ class AuthService {
   }
 
   Future signInWithEmailAndPassword(
-      {required String email, required String password}) async {
+      {required String email,
+      required String password,
+      required BuildContext context}) async {
     try {
       await _auth
           .signInWithEmailAndPassword(email: email, password: password)
@@ -67,6 +69,56 @@ class AuthService {
       });
     } catch (e) {
       print('Catched Error Message in sign in = ${e.toString()}');
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                actions: [
+                  OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('موافق'))
+                ],
+                content:
+                    const Text('الرجاء التأكد من صحة الإيميل وكلمة المرور'),
+              ));
+    }
+  }
+
+  static Future changePassword(
+      {required String newPassword, required BuildContext context}) async {
+    try {
+      final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+      User currentUser = firebaseAuth.currentUser!;
+      await currentUser.updatePassword(newPassword);
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text('تم تغيير كلمة المرور بنجاح'),
+                actions: [
+                  OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('موافق'))
+                ],
+              ));
+    } catch (e) {
+      print(e.toString());
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text(
+                    'حدث خطأ أثناء تغيير كلمة المرور الرجاء التأكد من المعلومات أو المحاولة لاحقاً'),
+                actions: [
+                  OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('موافق'))
+                ],
+              ));
     }
   }
 
