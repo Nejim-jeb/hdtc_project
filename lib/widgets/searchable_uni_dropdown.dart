@@ -8,12 +8,14 @@ class SearchableUniDropDown extends StatefulWidget {
   SearchableUniDropDown(
       {Key? key,
       required this.hintText,
+      required this.searchController,
       required this.myOnChanged,
       required this.unisList,
       required this.passedFieldData,
       required this.selectedUni,
       required this.focusNode})
       : super(key: key);
+  final TextEditingController searchController;
 
   String? selectedUni;
   String? hintText;
@@ -40,8 +42,10 @@ class _SearchableUniDropDownState extends State<SearchableUniDropDown> {
             icon: Icon(Icons.arrow_drop_down_sharp), color: Colors.black),
         popupProps: PopupProps.menu(
           searchFieldProps: TextFieldProps(
+            controller: widget.searchController,
             cursorColor: MyConstants.primaryColor,
-            showCursor: false,
+            // showCursor: false,
+            autofocus: true,
             decoration: InputDecoration(
                 focusedBorder: const UnderlineInputBorder(),
                 hintText: 'Search',

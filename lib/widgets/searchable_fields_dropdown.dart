@@ -7,6 +7,7 @@ class SearchableFieldsDropDown extends StatefulWidget {
   SearchableFieldsDropDown(
       {Key? key,
       required this.hintText,
+      required this.searchController,
       required this.myOnChanged,
       required this.selectedField,
       required this.fieldsList,
@@ -17,6 +18,7 @@ class SearchableFieldsDropDown extends StatefulWidget {
   String? hintText;
   final List<String>? fieldsList;
   final List<Map>? passedFieldData;
+  final TextEditingController searchController;
   ValueChanged myOnChanged;
   FocusNode? focusNode;
 
@@ -31,6 +33,11 @@ class _SearchableFieldsDropDownState extends State<SearchableFieldsDropDown> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 360,
@@ -39,8 +46,11 @@ class _SearchableFieldsDropDownState extends State<SearchableFieldsDropDown> {
             icon: Icon(Icons.arrow_drop_down_sharp), color: Colors.black),
         popupProps: PopupProps.menu(
           searchFieldProps: TextFieldProps(
+            //  restorationId: ,
+            controller: widget.searchController,
             cursorColor: MyConstants.primaryColor,
-            showCursor: false,
+            //  showCursor: false,
+            autofocus: true,
             decoration: InputDecoration(
                 focusedBorder: const UnderlineInputBorder(),
                 hintText: 'Search',

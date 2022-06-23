@@ -34,6 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? selectedlang;
   String? selectedField;
   String? currentUniSelection;
+  String? savedFieldSearch;
+  String? savedUniSearch;
   bool fromUni = false;
   late FocusNode? myFocusNode;
   late final List<String> _uniList;
@@ -62,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     myFocusNode!.dispose();
+
     super.dispose();
   }
 
@@ -197,6 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         fromUni = false;
                                                         selectedField = null;
                                                         selectedUni = null;
+                                                        selectedCountry = null;
+                                                        savedUniSearch = null;
                                                       });
                                                     }
                                                   },
@@ -241,6 +246,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         fromUni = true;
                                                         selectedField = null;
                                                         selectedUni = null;
+                                                        selectedCountry = null;
+                                                        savedFieldSearch = null;
                                                       });
                                                     }
                                                   },
@@ -298,11 +305,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             8.0),
                                                     child:
                                                         SearchableUniDropDown(
+                                                      searchController:
+                                                          TextEditingController(
+                                                              text:
+                                                                  savedUniSearch),
                                                       hintText: "اختر الجامعة",
                                                       myOnChanged: (value) {
                                                         setState(() {
                                                           selectedUni = value;
                                                           selectedlang = null;
+                                                          selectedCountry =
+                                                              null;
+                                                          savedUniSearch =
+                                                              value;
                                                         });
                                                       },
                                                       focusNode: myFocusNode,
@@ -356,6 +371,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             : Column(
                                                 children: [
                                                   SearchableFieldsDropDown(
+                                                      searchController:
+                                                          TextEditingController(
+                                                              text:
+                                                                  savedFieldSearch),
                                                       hintText: 'اختر الفرع',
                                                       myOnChanged: (value) {
                                                         if (passedFieldData
@@ -366,7 +385,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         setState(() {
                                                           selectedField = value;
                                                           selectedlang = null;
-
+                                                          selectedCountry =
+                                                              null;
+                                                          savedFieldSearch =
+                                                              value;
                                                           // FocusScope.of(context)
                                                           //     .requestFocus(myFocusNode);
                                                         });
@@ -424,122 +446,226 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: ElevatedButton(
-                                              style: Theme.of(context)
-                                                  .elevatedButtonTheme
-                                                  .style!
-                                                  .copyWith(
-                                                    minimumSize:
-                                                        MaterialStateProperty
-                                                            .all<Size>(
-                                                                const Size(
-                                                                    95, 40)),
-                                                    maximumSize:
-                                                        MaterialStateProperty
-                                                            .all<Size>(
-                                                                const Size(
-                                                                    95, 40)),
-                                                    padding:
-                                                        MaterialStateProperty
-                                                            .all<EdgeInsets>(
-                                                                EdgeInsets
-                                                                    .zero),
-                                                  ),
-                                              onPressed: fromUni == true
-                                                  ? () async {
-                                                      try {
-                                                        await PdfAPI.generateUniPdf(
-                                                            country:
-                                                                selectedCountry ==
-                                                                        'all'
-                                                                    ? null
-                                                                    : selectedCountry,
-                                                            branch:
-                                                                selectedRadio!,
-                                                            lang: selectedlang ==
-                                                                    'all'
-                                                                ? null
-                                                                : selectedlang,
-                                                            uniName:
-                                                                selectedUni!,
-                                                            uniData:
-                                                                passedMapList!);
-                                                        setState(() {
-                                                          selectedUni = null;
-                                                          selectedlang = null;
-                                                          selectedCountry =
-                                                              null;
-                                                        });
-                                                      } catch (e) {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (context) =>
-                                                                    AlertDialog(
-                                                                      title: Text(
-                                                                          e.toString()),
-                                                                    ));
-                                                      }
+                                            style: Theme.of(context)
+                                                .elevatedButtonTheme
+                                                .style!
+                                                .copyWith(
+                                                  minimumSize:
+                                                      MaterialStateProperty.all<
+                                                              Size>(
+                                                          const Size(95, 40)),
+                                                  maximumSize:
+                                                      MaterialStateProperty.all<
+                                                              Size>(
+                                                          const Size(95, 40)),
+                                                  padding: MaterialStateProperty
+                                                      .all<EdgeInsets>(
+                                                          EdgeInsets.zero),
+                                                ),
+                                            onPressed: fromUni == true
+                                                ? () async {
+                                                    try {
+                                                      await PdfAPI.viewUniPdf(
+                                                          country:
+                                                              selectedCountry ==
+                                                                      'all'
+                                                                  ? null
+                                                                  : selectedCountry,
+                                                          branch:
+                                                              selectedRadio!,
+                                                          lang: selectedlang ==
+                                                                  'all'
+                                                              ? null
+                                                              : selectedlang,
+                                                          uniName: selectedUni!,
+                                                          uniData:
+                                                              passedMapList!);
+                                                      // setState(() {
+                                                      //   selectedUni = null;
+                                                      //   selectedlang = null;
+                                                      //   selectedCountry = null;
+                                                      // });
+                                                    } catch (e) {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (context) =>
+                                                                  AlertDialog(
+                                                                    title: Text(
+                                                                        e.toString()),
+                                                                  ));
                                                     }
-                                                  : (() async {
-                                                      try {
-                                                        await PdfAPI.generateFieldPdf(
-                                                            country:
-                                                                selectedCountry ==
-                                                                        'all'
-                                                                    ? null
-                                                                    : selectedCountry,
-                                                            branch:
-                                                                selectedRadio!,
-                                                            lang: selectedlang ==
-                                                                    'all'
-                                                                ? null
-                                                                : selectedlang,
-                                                            fieldData:
-                                                                passedFieldData);
-                                                        setState(() {
-                                                          passedFieldData = [];
-                                                          selectedField = null;
-                                                          selectedlang = null;
-                                                          selectedCountry =
-                                                              null;
-                                                        });
-                                                      } catch (e) {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (context) =>
-                                                                    AlertDialog(
-                                                                      title: Text(
-                                                                          e.toString()),
-                                                                    ));
-                                                      }
-                                                    }),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsetsDirectional
-                                                        .fromSTEB(3, 3, 8, 3),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: const [
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: Icon(
-                                                          Icons
-                                                              .file_download_sharp,
-                                                        ),
+                                                  }
+                                                : (() async {
+                                                    try {
+                                                      await PdfAPI.viewFieldPdf(
+                                                          country:
+                                                              selectedCountry ==
+                                                                      'all'
+                                                                  ? null
+                                                                  : selectedCountry,
+                                                          branch:
+                                                              selectedRadio!,
+                                                          lang: selectedlang ==
+                                                                  'all'
+                                                              ? null
+                                                              : selectedlang,
+                                                          fieldData:
+                                                              passedFieldData);
+                                                      // setState(() {
+                                                      //   passedFieldData = [];
+                                                      //   selectedField = null;
+                                                      //   selectedlang = null;
+                                                      //   selectedCountry = null;
+                                                      // });
+                                                    } catch (e) {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (context) =>
+                                                                  AlertDialog(
+                                                                    title: Text(
+                                                                        e.toString()),
+                                                                  ));
+                                                    }
+                                                  }),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(3, 3, 8, 3),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: const [
+                                                  Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: Icon(
+                                                        Icons.preview_outlined,
                                                       ),
                                                     ),
-                                                    Text('إنشاء الملف'),
-                                                  ],
-                                                ),
-                                              )),
+                                                  ),
+                                                  Text('عرض الملف'),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ElevatedButton(
+                                            style: Theme.of(context)
+                                                .elevatedButtonTheme
+                                                .style!
+                                                .copyWith(
+                                                  minimumSize:
+                                                      MaterialStateProperty.all<
+                                                              Size>(
+                                                          const Size(95, 40)),
+                                                  maximumSize:
+                                                      MaterialStateProperty.all<
+                                                              Size>(
+                                                          const Size(95, 40)),
+                                                  padding: MaterialStateProperty
+                                                      .all<EdgeInsets>(
+                                                          EdgeInsets.zero),
+                                                ),
+                                            onPressed: fromUni == true
+                                                ? () async {
+                                                    try {
+                                                      await PdfAPI.generateUniPdf(
+                                                          country:
+                                                              selectedCountry ==
+                                                                      'all'
+                                                                  ? null
+                                                                  : selectedCountry,
+                                                          branch:
+                                                              selectedRadio!,
+                                                          lang: selectedlang ==
+                                                                  'all'
+                                                              ? null
+                                                              : selectedlang,
+                                                          uniName: selectedUni!,
+                                                          uniData:
+                                                              passedMapList!);
+                                                      setState(() {
+                                                        selectedUni = null;
+                                                        selectedlang = null;
+                                                        selectedCountry = null;
+                                                      });
+                                                    } catch (e) {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (context) =>
+                                                                  AlertDialog(
+                                                                    title: Text(
+                                                                        e.toString()),
+                                                                  ));
+                                                    }
+                                                  }
+                                                : (() async {
+                                                    try {
+                                                      await PdfAPI.generateFieldPdf(
+                                                          country:
+                                                              selectedCountry ==
+                                                                      'all'
+                                                                  ? null
+                                                                  : selectedCountry,
+                                                          branch:
+                                                              selectedRadio!,
+                                                          lang: selectedlang ==
+                                                                  'all'
+                                                              ? null
+                                                              : selectedlang,
+                                                          fieldData:
+                                                              passedFieldData);
+                                                      setState(() {
+                                                        passedFieldData = [];
+                                                        selectedField = null;
+                                                        selectedlang = null;
+                                                        selectedCountry = null;
+                                                      });
+                                                    } catch (e) {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (context) =>
+                                                                  AlertDialog(
+                                                                    title: Text(
+                                                                        e.toString()),
+                                                                  ));
+                                                    }
+                                                  }),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(3, 3, 8, 3),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: const [
+                                                  Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: Icon(
+                                                        Icons
+                                                            .file_download_sharp,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text('إنشاء الملف'),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        )
                                       ],
                                     ),
                                   ),
