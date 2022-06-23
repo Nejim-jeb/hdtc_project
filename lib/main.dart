@@ -74,6 +74,8 @@ class HdtcApp extends StatelessWidget {
           // navigatorKey: ,
           title: 'Flutter Demo',
           theme: ThemeData(
+            textSelectionTheme:
+                TextSelectionThemeData(cursorColor: MyConstants.primaryColor),
             scaffoldBackgroundColor: Colors.grey[200],
             progressIndicatorTheme:
                 ProgressIndicatorThemeData(color: MyConstants.primaryColor),

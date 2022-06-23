@@ -201,10 +201,16 @@ class PdfAPI {
               columnWidths: {
                 0: const IntrinsicColumnWidth(flex: 1.5),
                 2: const IntrinsicColumnWidth(flex: 1.0),
-                3: const IntrinsicColumnWidth(flex: 1.3),
-                4: const IntrinsicColumnWidth(flex: 1.9),
-                5: const IntrinsicColumnWidth(flex: 1.8),
+                3: const IntrinsicColumnWidth(flex: 1.4),
+                4: const IntrinsicColumnWidth(flex: 2.0),
+                5: const IntrinsicColumnWidth(flex: 1.9),
                 6: const IntrinsicColumnWidth(flex: 1.5),
+                // 0: const IntrinsicColumnWidth(flex: 1.5),
+                // 2: const IntrinsicColumnWidth(flex: 1.0),
+                // 3: const IntrinsicColumnWidth(flex: 1.4),
+                // 4: const IntrinsicColumnWidth(flex: 2.0),
+                // 5: const IntrinsicColumnWidth(flex: 1.9),
+                // 6: const IntrinsicColumnWidth(flex: 1.5),
               },
             )
           ];
@@ -219,7 +225,372 @@ class PdfAPI {
             Utils.capitalizeFirstOfEachWord('$uniName $branch $lang.pdf'));
   }
 
+  static Future viewUniPdf(
+      {required String uniName,
+      required String branch,
+      String? country,
+      required List<Map> uniData,
+      String? lang}) async {
+    final font = await PdfGoogleFonts.sourceSans3SemiBold();
+    List<List<String>> _filteredList2 = [];
+    List<List<String>> _allData = [];
+    if (lang != null && country == null) {
+      for (var item in uniData) {
+        if (item['lang'].toString().contains(lang) ||
+            item['lang']
+                .toString()
+                .contains(Utils.capitalizeFirstOfEachWord(lang))) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(uniName));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else if (lang == null && country != null) {
+      for (var item in uniData) {
+        if (item['location'].toString().contains(country) ||
+            item['location']
+                .toString()
+                .contains(Utils.capitalizeFirstOfEachWord(country))) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(uniName));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else if (lang != null && country != null) {
+      for (var item in uniData) {
+        if (item['location'].toString().contains(country) &&
+            item['lang'].toString().contains(lang)) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(uniName));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else {
+      for (var item in uniData) {
+        List<String> rowData = [];
+        rowData.add(Utils.capitalizeFirstOfEachWord(uniName));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+        rowData
+            .add(Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+        _allData.add(rowData);
+      }
+    }
+
+    final imageJpj =
+        (await rootBundle.load('hdtc_logo2.jpg')).buffer.asUint8List();
+    final imageBackground =
+        (await rootBundle.load('hdtc_background.jpg')).buffer.asUint8List();
+    final pageTheme = PageTheme(
+        pageFormat: PdfPageFormat.a4,
+        margin: const EdgeInsets.fromLTRB(50, 20, 50, 50),
+        theme: ThemeData(
+          defaultTextStyle: TextStyle(font: font),
+        ),
+        buildBackground: (context) {
+          return FullPage(
+            ignoreMargins: true,
+            child: Opacity(
+                opacity: 0.1,
+                child: Image(MemoryImage(imageBackground), fit: BoxFit.cover)),
+          );
+        });
+
+    final pdf = Document();
+    pdf.addPage(
+      MultiPage(
+        footer: (context) => Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child:
+                Center(child: Text(footerText, style: TextStyle(font: font)))),
+        pageTheme: pageTheme,
+        header: (context) =>
+            buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
+        build: (context) {
+          var headerRow = TableRow(
+              verticalAlignment: TableCellVerticalAlignment.full,
+              children: headers
+                  .map((cell) => Container(
+                      padding: const EdgeInsets.all(8),
+                      color: PdfColor.fromHex('#ffd961'),
+                      child: Text(Utils.capitalizeFirstOfEachWord(cell),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 8.5, fontWeight: FontWeight.bold))))
+                  .toList());
+          return [
+            Table(
+              border: TableBorder.all(width: 1),
+              defaultVerticalAlignment: TableCellVerticalAlignment.full,
+              children: [
+                headerRow,
+                if (lang == null && country == null)
+                  for (int i = 0; i < uniData.length; i++)
+                    buildRow(
+                        data: _allData,
+                        index: i,
+                        uniName: Utils.capitalizeFirstOfEachWord(uniName)),
+                if (lang != null && country == null)
+                  for (int i = 0; i < _filteredList2.length; i++)
+                    buildFilteredRow(
+                      uniName: Utils.capitalizeFirstOfEachWord(uniName),
+                      data: _filteredList2,
+                      index: i,
+                      lang: lang,
+                    ),
+                if (lang == null && country != null)
+                  for (int i = 0; i < _filteredList2.length; i++)
+                    buildFilteredRow(
+                      uniName: Utils.capitalizeFirstOfEachWord(uniName),
+                      data: _filteredList2,
+                      index: i,
+                      lang: lang,
+                    ),
+                if (lang != null && country != null)
+                  for (int i = 0; i < _filteredList2.length; i++)
+                    buildFilteredRow(
+                      uniName: Utils.capitalizeFirstOfEachWord(uniName),
+                      data: _filteredList2,
+                      index: i,
+                      lang: lang,
+                    )
+              ],
+              columnWidths: {
+                0: const IntrinsicColumnWidth(flex: 1.5),
+                2: const IntrinsicColumnWidth(flex: 1.0),
+                3: const IntrinsicColumnWidth(flex: 1.4),
+                4: const IntrinsicColumnWidth(flex: 2.0),
+                5: const IntrinsicColumnWidth(flex: 1.9),
+                6: const IntrinsicColumnWidth(flex: 1.5),
+              },
+            )
+          ];
+        },
+      ),
+    );
+    List<int> bytes = await pdf.save();
+    lang == null
+        ? saveAndViewFileWeb(
+            bytes, Utils.capitalizeFirstOfEachWord('$uniName $branch.pdf'))
+        : saveAndViewFileWeb(bytes,
+            Utils.capitalizeFirstOfEachWord('$uniName $branch $lang.pdf'));
+  }
+
   static Future generateFieldPdf(
+      {required List<Map> fieldData,
+      String? country,
+      String? lang,
+      required String branch}) async {
+    final font = await PdfGoogleFonts.sourceSans3SemiBold();
+    List<List<String>> _filteredList2 = [];
+    List<List<String>> _allData = [];
+    if (lang != null && country == null) {
+      for (var item in fieldData) {
+        if (item['lang'].toString().contains(lang) ||
+            item['lang']
+                .toString()
+                .contains(Utils.capitalizeFirstOfEachWord(lang))) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['name'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else if (country != null && lang == null) {
+      for (var item in fieldData) {
+        if (item['location'].toString().contains(country) ||
+            item['location']
+                .toString()
+                .contains(Utils.capitalizeFirstOfEachWord(country))) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['name'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else if (country != null && lang != null) {
+      for (var item in fieldData) {
+        if (item['location'].toString().contains(country) &&
+            item['lang'].toString().contains(lang)) {
+          List<String> rowData = [];
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['name'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+          rowData.add(
+              Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+          rowData
+              .add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+          rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+          _filteredList2.add(rowData);
+        }
+      }
+    } else {
+      for (var item in fieldData) {
+        List<String> rowData = [];
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['name'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['fees'].toString()));
+        rowData
+            .add(Utils.capitalizeFirstOfEachWord(item['location'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['spec'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['field'].toString()));
+        rowData.add(Utils.capitalizeFirstOfEachWord(item['note'].toString()));
+        _allData.add(rowData);
+      }
+    }
+
+    // final fontFromAsset = await rootBundle.load('fonts/Cairo-Regular.ttf');
+    // Font font = Font.ttf(fontFromAsset);
+    final imageJpj =
+        (await rootBundle.load('hdtc_logo2.jpg')).buffer.asUint8List();
+    final imageBackground =
+        (await rootBundle.load('hdtc_background.jpg')).buffer.asUint8List();
+
+    final pageTheme = PageTheme(
+        pageFormat: PdfPageFormat.a4,
+        margin: const EdgeInsets.fromLTRB(50, 20, 50, 50),
+        theme: ThemeData.withFont(base: font),
+        buildBackground: (context) {
+          return FullPage(
+            ignoreMargins: true,
+            child: Opacity(
+                opacity: 0.1,
+                child: Image(MemoryImage(imageBackground), fit: BoxFit.cover)),
+          );
+        });
+
+    final pdf = Document();
+    pdf.addPage(
+      MultiPage(
+        footer: (context) {
+          return Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Center(
+                  child: Text(footerText, style: TextStyle(font: font))));
+        },
+        pageTheme: pageTheme,
+        header: (context) =>
+            buildHeader(phoneNumber: phoneNumber, imageJpj: imageJpj),
+        build: (context) {
+          var headerRow = TableRow(
+              verticalAlignment: TableCellVerticalAlignment.full,
+              children: headers
+                  .map((cell) => Container(
+                      padding: const EdgeInsets.all(8),
+                      color: PdfColor.fromHex('#ffd961'),
+                      child: Text(Utils.capitalizeFirstOfEachWord(cell),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 8.5, fontWeight: FontWeight.bold))))
+                  .toList());
+          return [
+            Table(
+                border: TableBorder.all(width: 1),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                columnWidths: {
+                  0: const IntrinsicColumnWidth(flex: 1.5),
+                  2: const IntrinsicColumnWidth(flex: 1.0),
+                  3: const IntrinsicColumnWidth(flex: 1.4),
+                  4: const IntrinsicColumnWidth(flex: 2.0),
+                  5: const IntrinsicColumnWidth(flex: 1.9),
+                  6: const IntrinsicColumnWidth(flex: 1.5),
+                },
+                children: [
+                  headerRow,
+                  if (lang == null && country == null)
+                    for (int i = 0; i < _allData.length; i++)
+                      buildFieldRow(
+                          data: _allData,
+                          index: i,
+                          uniName: fieldData[i]['name']),
+                  if (lang != null && country == null)
+                    for (int i = 0; i < _filteredList2.length; i++)
+                      buildFilteredFieldRow(
+                        // uniName: fieldData[i]['name'],
+                        uniName: _filteredList2[i][0],
+                        data: _filteredList2,
+                        index: i,
+                        lang: lang,
+                      ),
+                  if (lang == null && country != null)
+                    for (int i = 0; i < _filteredList2.length; i++)
+                      buildFilteredFieldRow(
+                        //  uniName: fieldData[i]['name'],
+                        uniName: _filteredList2[i][0],
+                        data: _filteredList2,
+                        index: i,
+                        lang: lang,
+                      ),
+                  if (lang != null && country != null)
+                    for (int i = 0; i < _filteredList2.length; i++)
+                      buildFilteredFieldRow(
+                        // uniName: fieldData[i]['name'],
+                        uniName: _filteredList2[i][0],
+                        data: _filteredList2,
+                        index: i,
+                        lang: lang,
+                      )
+                ])
+          ];
+        },
+      ),
+    );
+    List<int> bytes = await pdf.save();
+    lang == null
+        ? saveAndLaunchFileWeb(
+            bytes,
+            Utils.capitalizeFirstOfEachWord(
+                '$branch ${fieldData[0]['spec']}.pdf'))
+        : saveAndLaunchFileWeb(
+            bytes,
+            Utils.capitalizeFirstOfEachWord(
+                '$branch ${fieldData[0]['spec']} $lang.pdf'));
+    _filteredList2 = [];
+  }
+
+  static Future viewFieldPdf(
       {required List<Map> fieldData,
       String? country,
       String? lang,
@@ -269,7 +640,6 @@ class PdfAPI {
       for (var item in fieldData) {
         if (item['location'].toString().contains(country) &&
             item['lang'].toString().contains(lang)) {
-          print('------ WENT INSIDE IF STATEMENT ---------');
           List<String> rowData = [];
           rowData.add(Utils.capitalizeFirstOfEachWord(item['name']));
           rowData.add(Utils.capitalizeFirstOfEachWord(item['lang'].toString()));
@@ -349,23 +719,25 @@ class PdfAPI {
                 columnWidths: {
                   0: const IntrinsicColumnWidth(flex: 1.5),
                   2: const IntrinsicColumnWidth(flex: 1.0),
-                  3: const IntrinsicColumnWidth(flex: 1.3),
-                  4: const IntrinsicColumnWidth(flex: 1.9),
-                  5: const IntrinsicColumnWidth(flex: 1.8),
+                  3: const IntrinsicColumnWidth(flex: 1.4),
+                  4: const IntrinsicColumnWidth(flex: 2.0),
+                  5: const IntrinsicColumnWidth(flex: 1.9),
                   6: const IntrinsicColumnWidth(flex: 1.5),
                 },
                 children: [
                   headerRow,
                   if (lang == null && country == null)
                     for (int i = 0; i < _allData.length; i++)
-                      buildRow(
+                      buildFieldRow(
                           data: _allData,
                           index: i,
                           uniName: fieldData[i]['name']),
                   if (lang != null && country == null)
                     for (int i = 0; i < _filteredList2.length; i++)
                       buildFilteredFieldRow(
-                        uniName: fieldData[i]['name'],
+                        uniName: _filteredList2[i][0],
+
+                        // old code uniName: fieldData[i]['name'],
                         data: _filteredList2,
                         index: i,
                         lang: lang,
@@ -373,7 +745,9 @@ class PdfAPI {
                   if (lang == null && country != null)
                     for (int i = 0; i < _filteredList2.length; i++)
                       buildFilteredFieldRow(
-                        uniName: fieldData[i]['name'],
+                        uniName: _filteredList2[i][0],
+
+                        // old code uniName: fieldData[i]['name'],
                         data: _filteredList2,
                         index: i,
                         lang: lang,
@@ -381,48 +755,24 @@ class PdfAPI {
                   if (lang != null && country != null)
                     for (int i = 0; i < _filteredList2.length; i++)
                       buildFilteredFieldRow(
-                        uniName: fieldData[i]['name'],
+                        uniName: _filteredList2[i][0],
+                        // old code  uniName: fieldData[i]['name'],
                         data: _filteredList2,
                         index: i,
                         lang: lang,
                       )
-                ]
-
-                //  lang == null
-                //     ? [
-                //         headerRow,
-                //         for (int i = 0; i < _allData.length; i++)
-                //           buildFieldRow(
-                //             headers: headers,
-                //             uniName: Utils.capitalizeFirstOfEachWord(
-                //                 fieldData[i]['name']),
-                //             data: _allData,
-                //             index: i,
-                //           )
-                //       ]
-                //     : [
-                //         headerRow,
-                //         for (int i = 0; i < _filteredList2.length; i++)
-                //           buildFilteredFieldRow(
-                //             uniName: Utils.capitalizeFirstOfEachWord(
-                //                 _filteredList2[i][0]),
-                //             data: _filteredList2,
-                //             index: i,
-                //             lang: lang,
-                //           )
-                //       ],
-                )
+                ])
           ];
         },
       ),
     );
     List<int> bytes = await pdf.save();
     lang == null
-        ? saveAndLaunchFileWeb(
+        ? saveAndViewFileWeb(
             bytes,
             Utils.capitalizeFirstOfEachWord(
                 '$branch ${fieldData[0]['spec']}.pdf'))
-        : saveAndLaunchFileWeb(
+        : saveAndViewFileWeb(
             bytes,
             Utils.capitalizeFirstOfEachWord(
                 '$branch ${fieldData[0]['spec']} $lang.pdf'));
@@ -442,6 +792,14 @@ class PdfAPI {
             "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
       ..setAttribute("download", fileName)
       ..click();
+  }
+
+  static Future<void> saveAndViewFileWeb(
+      List<int> bytes, String fileName) async {
+    final blob = html.Blob([bytes], 'application/pdf');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    html.window.open(url, "_blank");
+    html.Url.revokeObjectUrl(url);
   }
 }
 
@@ -467,11 +825,12 @@ buildRow(
                   map,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 9.5,
-                      color: data[index].contains('closed') ||
-                              data[index].contains('Closed')
-                          ? PdfColors.red
-                          : PdfColors.black),
+                    fontSize: 9.5,
+                    color: data[index].any(
+                            (e) => e.contains('closed') || e.contains('Closed'))
+                        ? PdfColors.red
+                        : PdfColors.black,
+                  ),
                 )))
             .toList());
   } catch (e) {
@@ -497,11 +856,12 @@ buildFilteredRow(
                     map,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 9.5,
-                        color: data[index].contains('closed') ||
-                                data[index].contains('Closed')
-                            ? PdfColors.red
-                            : PdfColors.black),
+                      fontSize: 9.5,
+                      color: data[index].any((e) =>
+                              e.contains('closed') || e.contains('Closed'))
+                          ? PdfColors.red
+                          : PdfColors.black,
+                    ),
                   ),
                 ))
             .toList());
@@ -512,7 +872,6 @@ buildFilteredRow(
 
 buildFieldRow({
   required List<List<String>> data,
-  required List<String> headers,
   required int index,
   required String uniName,
 }) {
@@ -522,18 +881,23 @@ buildFieldRow({
         children: data[index]
             .map(
               (map) => Container(
-                  padding: const EdgeInsets.all(8),
-                  color: data[index][0] == uniName && map.contains(uniName)
-                      ? PdfColor.fromHex('#ffe49a')
-                      : null,
-                  child: Text(map,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 9.5,
-                          color: data[index].contains('closed') ||
-                                  data[index].contains('Closed')
-                              ? PdfColors.red
-                              : PdfColors.black))),
+                padding: const EdgeInsets.all(8),
+                color: data[index][0].toLowerCase() == uniName &&
+                        map.contains(Utils.capitalizeFirstOfEachWord(uniName))
+                    ? PdfColor.fromHex('#ffe49a')
+                    : null,
+                child: Text(
+                  map,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    color: data[index].any(
+                            (e) => e.contains('closed') || e.contains('Closed'))
+                        ? PdfColors.red
+                        : PdfColors.black,
+                  ),
+                ),
+              ),
             )
             .toList());
   } catch (e) {
@@ -550,19 +914,27 @@ buildFilteredFieldRow(
     return TableRow(
         verticalAlignment: TableCellVerticalAlignment.full,
         children: data[index]
-            .map((map) => Container(
-                color: data[index][0] == uniName && map.contains(uniName)
+            .map(
+              (map) => Container(
+                color: data[index][0].toLowerCase() == uniName.toLowerCase() &&
+                        //    map.contains(Utils.capitalizeFirstOfEachWord(uniName))
+                        map.contains(Utils.capitalizeFirstOfEachWord(uniName))
                     ? PdfColor.fromHex('#ffe49a')
                     : null,
                 padding: const EdgeInsets.all(8),
-                child: Text(map,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 9.5,
-                        color: data[index].contains('closed') ||
-                                data[index].contains('Closed')
-                            ? PdfColors.red
-                            : PdfColors.black))))
+                child: Text(
+                  map,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    color: data[index].any(
+                            (e) => e.contains('closed') || e.contains('Closed'))
+                        ? PdfColors.red
+                        : PdfColors.black,
+                  ),
+                ),
+              ),
+            )
             .toList());
   } catch (e) {
     print('Cached Error Message in filtered row = $e');

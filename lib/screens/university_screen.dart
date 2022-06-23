@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/screens/university_specialization_screen.dart';
 import 'package:hdtc_project/widgets/admin_sidebar.dart';
+import 'package:hdtc_project/widgets/search_box.dart';
 import '../constants/my_constants.dart';
 import '../services/firestore_services.dart';
 import '../utils.dart';
@@ -20,9 +21,10 @@ class UniversityScreen extends StatefulWidget {
 
 class _UniversityScreenState extends State<UniversityScreen> {
   late NavigatorState _navigator;
-
   late TextEditingController newFieldController;
   late final myStream;
+  TextEditingController controller = TextEditingController();
+  String? query = '';
 
   @override
   void didChangeDependencies() {
@@ -40,6 +42,14 @@ class _UniversityScreenState extends State<UniversityScreen> {
         .snapshots();
   }
 
+  List<dynamic> filteredList(
+      {required List<dynamic> data, required String query}) {
+    final res = data.where((element) {
+      return element.contains(query.toLowerCase());
+    }).toList();
+    return res;
+  }
+
   @override
   void dispose() {
     newFieldController.dispose();
@@ -54,7 +64,7 @@ class _UniversityScreenState extends State<UniversityScreen> {
         stream: myStream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            List fields = List.of(snapshot.data!.get('fields'));
+            List<dynamic> fields = List.of(snapshot.data!.get('fields'));
             if (fields.isEmpty) {
               return Scaffold(
                 body: Center(
@@ -71,8 +81,6 @@ class _UniversityScreenState extends State<UniversityScreen> {
                               fixedSize: const Size(70, 70),
                               shape: const CircleBorder()),
                           onPressed: () {
-                            print('pressed open dialog');
-
                             final _formkey = GlobalKey<FormState>();
                             showDialog(
                                 context: context,
@@ -141,87 +149,19 @@ class _UniversityScreenState extends State<UniversityScreen> {
                       Expanded(
                         child: Column(
                           children: [
+                            buildSearch(),
                             Expanded(
                               child: Center(
                                 child: Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: ListView.separated(
-                                      itemBuilder: (context, index) {
-                                        return Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            IconButton(
-                                                onPressed: () async {
-                                                  await MyConstants
-                                                      .myAsyncShowDialog(
-                                                          context: context,
-                                                          title:
-                                                              'هل أنت متأكد من حذف الفرع',
-                                                          onPressed: () async {
-                                                            try {
-                                                              Navigator.pop(
-                                                                  context);
-                                                              await FireStoreServices.deleteField(
-                                                                  fieldValue:
-                                                                      fields[
-                                                                          index],
-                                                                  collectionPath:
-                                                                      widget
-                                                                          .branch,
-                                                                  uniName: widget
-                                                                      .uniName);
-                                                            } catch (e) {
-                                                              showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) =>
-                                                                          AlertDialog(
-                                                                            title:
-                                                                                Text(e.toString()),
-                                                                          ));
-                                                            }
-                                                          });
-                                                },
-                                                icon: Icon(
-                                                  Icons.delete_forever_outlined,
-                                                  color:
-                                                      MyConstants.primaryColor,
-                                                )),
-                                            TextButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              UniversitySpecializationScreen(
-                                                                field: fields[
-                                                                    index],
-                                                                branch: widget
-                                                                    .branch,
-                                                                uniName: widget
-                                                                    .uniName,
-                                                              )));
-                                                },
-                                                child: FittedBox(
-                                                  child: Text(
-                                                    Utils
-                                                        .capitalizeFirstOfEachWord(
-                                                            fields[index]),
-                                                    style: const TextStyle(
-                                                        fontSize: 25),
-                                                  ),
-                                                )),
-                                          ],
-                                        );
-                                      },
-                                      separatorBuilder: (context, index) {
-                                        return const SizedBox(
-                                          height: 15,
-                                        );
-                                      },
-                                      itemCount: fields.length),
+                                  textDirection: TextDirection.ltr,
+                                  child: FieldsList(
+                                      uniName: widget.uniName,
+                                      data: query == '' || query == null
+                                          ? fields
+                                          : filteredList(
+                                              data: fields, query: query!),
+                                      widget: widget,
+                                      query: query),
                                 ),
                               ),
                             ),
@@ -319,6 +259,87 @@ class _UniversityScreenState extends State<UniversityScreen> {
               child: CircularProgressIndicator(),
             );
           }
+        },
+      ),
+    );
+  }
+
+  Widget buildSearch() => SearchWidget(
+        controllerTest: controller,
+        text: query,
+        hintText: 'Search',
+        onChanged: (val) {
+          setState(() {
+            query = val;
+          });
+        },
+      );
+}
+
+class FieldsList extends StatelessWidget {
+  const FieldsList({
+    Key? key,
+    required this.query,
+    required this.data,
+    required this.uniName,
+    required this.widget,
+  }) : super(key: key);
+  final UniversityScreen widget;
+  final String uniName;
+  final String? query;
+  final List<dynamic>? data;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 800,
+      child: ListView.separated(
+        itemCount: query == null || query == '' ? data!.length : data!.length,
+        separatorBuilder: (context, index) => const SizedBox(
+          height: 15,
+        ),
+        itemBuilder: (context, index) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    print('pressed');
+                    print('${widget.branch} ${data![index]}');
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                UniversitySpecializationScreen(
+                                    field: data![index],
+                                    branch: widget.branch,
+                                    uniName: uniName)));
+                  },
+                  child: FittedBox(
+                    child: Text(
+                      Utils.capitalizeFirstOfEachWord(data![index]),
+                      style: const TextStyle(fontSize: 25),
+                    ),
+                  )),
+              IconButton(
+                  onPressed: () async {
+                    await MyConstants.myAsyncShowDialog(
+                        context: context,
+                        title: 'هل أنت متأكد من حذف الفرع',
+                        onPressed: () async {
+                          await FireStoreServices.deleteField(
+                              collectionPath: widget.branch,
+                              fieldValue: data![index],
+                              uniName: uniName);
+                          Navigator.pop(context);
+                        });
+                  },
+                  icon: Icon(
+                    Icons.delete_forever_outlined,
+                    color: MyConstants.primaryColor,
+                  ))
+            ],
+          );
         },
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hdtc_project/constants/my_constants.dart';
 import 'package:hdtc_project/services/auth_services.dart';
@@ -35,88 +36,96 @@ class _SiginScreenState extends State<SiginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(defaultTargetPlatform);
     final width = MediaQuery.of(context).size.width;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Center(
-          child: SingleChildScrollView(
-            child: Form(
-              // TODO: Form Validation
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: width * 0.5,
-                    child: TextFormField(
-                      validator: validateEmail,
-                      cursorHeight: 0,
-                      cursorWidth: 0,
-                      textAlign: TextAlign.left,
-                      decoration: MyConstants.formTextFieldInputDecoration(
-                          hintText: 'البريد الإلكتروني'),
-                      controller: _emailController,
+        body: AutofillGroup(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Form(
+                // TODO: Form Validation
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: width * 0.5,
+                      child: TextFormField(
+                        autofillHints: const [AutofillHints.email],
+                        textDirection: TextDirection.ltr,
+                        // keyboardType: TextInputType.emailAddress,
+                        validator: validateEmail,
+                        textAlign: TextAlign.left,
+                        decoration: MyConstants.formTextFieldInputDecoration(
+                            hintText: 'البريد الإلكتروني'),
+                        controller: _emailController,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    width: width * 0.5,
-                    child: TextFormField(
-                      onTap: () {
-                        _passwordController.selection = TextSelection.collapsed(
-                            offset: _passwordController.text.length);
-                      },
-                      textAlign: TextAlign.left,
-                      cursorHeight: 0,
-                      cursorWidth: 0,
-                      obscureText: isObsecure,
-                      decoration: InputDecoration(
-                          prefixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isObsecure = !isObsecure;
-                                });
-                              },
-                              icon: !isObsecure
-                                  ? Icon(
-                                      Icons.visibility,
-                                      color: MyConstants.primaryColor,
-                                    )
-                                  : Icon(
-                                      Icons.visibility_off_outlined,
-                                      color: MyConstants.secondaryColor,
-                                    )),
-                          labelText: 'كلمة المرور',
-                          labelStyle: TextStyle(
-                            color: MyConstants.primaryColor,
-                          ),
-                          enabledBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey)),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey.shade800),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          focusedBorder: OutlineInputBorder(
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      width: width * 0.5,
+                      child: TextFormField(
+                        // onTap: () {
+                        //   _passwordController.selection = TextSelection.collapsed(
+                        //       offset: _passwordController.text.length);
+                        // },
+                        textAlign: TextAlign.left,
+                        textDirection: TextDirection.ltr,
+                        autofillHints: const [AutofillHints.password],
+                        obscureText: isObsecure,
+                        decoration: InputDecoration(
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 5),
+                            prefixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isObsecure = !isObsecure;
+                                  });
+                                },
+                                icon: !isObsecure
+                                    ? Icon(
+                                        Icons.visibility,
+                                        color: MyConstants.primaryColor,
+                                      )
+                                    : Icon(
+                                        Icons.visibility_off_outlined,
+                                        color: MyConstants.secondaryColor,
+                                      )),
+                            labelText: 'Password',
+                            labelStyle: TextStyle(
+                              color: MyConstants.primaryColor,
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey)),
+                            border: OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.grey.shade900))),
-                      controller: _passwordController,
+                                  BorderSide(color: Colors.grey.shade800),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade900))),
+                        controller: _passwordController,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 25),
-                  ElevatedButton(
-                      onPressed: () async {
-                        // TODO: Form if Valid
-                        _authService.signInWithEmailAndPassword(
-                            context: context,
-                            email: _emailController.text.trim().toLowerCase(),
-                            password:
-                                _passwordController.text.trim().toLowerCase());
-                      },
-                      child: const Text('تسجيل الدخول')),
-                ],
+                    const SizedBox(height: 25),
+                    ElevatedButton(
+                        onPressed: () async {
+                          // TODO: Form if Valid
+                          _authService.signInWithEmailAndPassword(
+                              context: context,
+                              email: _emailController.text.trim().toLowerCase(),
+                              password: _passwordController.text
+                                  .trim()
+                                  .toLowerCase());
+                        },
+                        child: const Text('تسجيل الدخول')),
+                  ],
+                ),
               ),
             ),
           ),

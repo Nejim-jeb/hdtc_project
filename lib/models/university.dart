@@ -49,3 +49,25 @@ class University {
   factory University.fromJson(String source) =>
       University.fromMap(json.decode(source));
 }
+
+class WithOutPrivateConstuctor {
+  static get instance => WithOutPrivateConstuctor();
+  static final instance2 = WithOutPrivateConstuctor();
+  static String? field;
+
+  int? returnInt() {
+    return 1;
+  }
+}
+
+class WithPrivateConstuctor {
+  WithPrivateConstuctor._();
+
+  static get instance => WithPrivateConstuctor._();
+  static final instance2 = WithPrivateConstuctor._();
+  static String? field;
+
+  int? returnInt() {
+    return 1;
+  }
+}
